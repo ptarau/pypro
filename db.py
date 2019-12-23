@@ -1,6 +1,8 @@
 from collections import defaultdict
 
-from unify import unifyToEnv, unifyToTerm, Int, isvar,istuple
+from unify import unifyToEnv, unifyToTerm, isvar,istuple
+from parser import parse
+from scanner import Int
 
 def make_index() :
   return defaultdict(set)
@@ -45,6 +47,10 @@ class db:
     self.index=make_index() # content --> int index
     self.css=[]  # content as ground tuples
 
+  def digest(self,text):
+    for cs in parse(text,ground=True) :
+      self.add_clause(cs)
+
   def add_clause(self,cs):
     add_clause(self.index,self.css,cs)
 
@@ -65,6 +71,13 @@ class db:
       u = unifyToTerm(h,h0)
       if u : yield u
 
+  def search(self,query):
+    qss=parse(query,ground=False)
+    for qs in qss:
+        for rs in self.match_of(qs) :
+          yield rs
+
+
 c1=('a',Int(1),'car','a')
 c2=('a',Int(2),'horse','aa')
 c3=('b',Int(1),'horse','b')
@@ -74,7 +87,7 @@ g1=('a',0,1,2)
 g2=(0,1,'car',2)
 g3=(0,1,2,0)
 
-def go() :
+def dtest1() :
   print(c1,'<-const:',list(const_of(c1)))
   print(c3,'<-vars:',list(vars_of(c3)))
   d=db()
@@ -90,5 +103,25 @@ def go() :
   print('Vmatch', g3, list(d.match_of(g3)))
 
 
-go()
+def dtest() :
+  text='''
+   John has (a car).
+   Mary has (a bike).
+   Mary is (a student).
+   John is (a pilot).
+   '''
+  d=db()
+  d.digest(text)
+  query = "Who is What?"
+  print(query)
+  for r in d.search(query) :
+    print(r)
+  query = "Who has (a What)?"
+  print(query)
+  for r in d.search(query):
+    print(r)
+
+if __name__=='__main__' :
+  dtest()
+
 

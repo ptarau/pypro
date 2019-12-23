@@ -20,7 +20,7 @@ class scanner:
       (r"[A-Z_]+[\w]*", lambda sc, tok: ("VAR", self.sym(tok))),
       (r"[(]", lambda sc, tok: ("LPAR", tok)),
       (r"[)]", lambda sc, tok: ("RPAR", tok)),
-      (r"[.?]", lambda sc, tok: ("END", tok)),
+      (r"[.?]", lambda sc, tok: ("END", '.')),
       (r"[:]", lambda sc, tok: ("IF", tok)),
       (r"[,]", lambda sc, tok: ("AND", tok)),
       (r"[;]", lambda sc, tok: ("OR", tok)),
