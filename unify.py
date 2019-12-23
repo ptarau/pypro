@@ -4,9 +4,9 @@
 # if you need ints, wrap them as Ints
 
 # extracts if after unification succeeds
-def  unifyToTerm(x1,x2) :
+def  unifyToTerm(x1,x2,trail=None,ocheck=False) :
   vs = makeEnv()
-  if unifyWithEnv(x1,x2,vs) :
+  if unifyWithEnv(x1,x2,vs,trail,ocheck) :
     t1 = extractType(x1,vs)
     t2 = extractType(x2,vs)
     #print (t1,'==',t2)
@@ -14,10 +14,10 @@ def  unifyToTerm(x1,x2) :
   else :
     return None
 
-# unifies, returning the envoronment with bindings    
-def  unifyToEnv(x1,x2) :
+# unifies, returning the environment with bindings
+def  unifyToEnv(x1,x2,trail=None,ocheck=False) :
   vs = makeEnv()
-  if unifyWithEnv(x1,x2,vs) : return vs
+  if unifyWithEnv(x1,x2,vs,trail,ocheck) : return vs
   else : return None
 
 # contains list of bindings
@@ -40,7 +40,7 @@ def extractType(x,es) :
   return et(x)
 
 # unifies, by extending given environment vs
-def unifyWithEnv(x1,x2,vs) :
+def unifyWithEnv(x1,x2,vs,trail,ocheck) :
   t1 = deref(x1,vs)
   t2 = deref(x2,vs)
   b1 = isvar(t1)
@@ -51,9 +51,9 @@ def unifyWithEnv(x1,x2,vs) :
       vs[i]=j
     return True
   elif b1:
-    return bind(t1,t2,vs)
+    return bind(t1,t2,vs,trail,ocheck)
   elif b2 :  
-    return bind(t2,t1,vs)
+    return bind(t2,t1,vs,trail,ocheck)
   elif not istuple(t1) :
     return t1==t2
   else :
@@ -61,7 +61,7 @@ def unifyWithEnv(x1,x2,vs) :
     n2 = len(t2)
     if n1 != n2 : return False
     for i in range(n1) :
-      if not unifyWithEnv(t1[i],t2[i],vs) : return False
+      if not unifyWithEnv(t1[i],t2[i],vs,trail,ocheck) : return False
     return True
 
 # occurs check, for sound unification  
@@ -97,10 +97,11 @@ def deref(i,vs) :
   return i
 
 # binds var to term  
-def bind(i,t,vs) :
-  if occurs1(i,t,vs) : return False
+def bind(i,t,vs,trail,ocheck) :
+  if ocheck and occurs1(i,t,vs) : return False
   else :
     vs[i]=t
+    if trail!=None : trail.push(i)
     return True
 
 

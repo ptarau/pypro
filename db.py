@@ -12,8 +12,7 @@ def const_of0(t) :
     pass
   elif istuple(t) :
     for x in t:
-      for y in const_of(x) :
-         yield y
+      yield from const_of(x)
   else :
     yield t
 
@@ -24,8 +23,7 @@ def vars_of0(t) :
     yield t
   elif istuple(t) :
     for x in t:
-      for y in vars_of(x) :
-         yield y
+      yield from vars_of(x)
   else :
     pass
 
@@ -59,7 +57,7 @@ class db:
     if not cs :
       return set(range(len(self.css)))
     c=next(iter(cs))
-    r=self.index[c]
+    r=self.index[c].copy()
     for x in cs:
       r &= self.index[x]
     return r
@@ -77,6 +75,9 @@ class db:
         for rs in self.match_of(qs) :
           yield rs
 
+  def __repr__(self):
+    xs=[str(cs)+'\n' for cs in self.css]
+    return "".join(xs)
 
 c1=('a',Int(1),'car','a')
 c2=('a',Int(2),'horse','aa')
@@ -110,9 +111,10 @@ def dtest() :
    Mary is (a student).
    John is (a pilot).
    '''
-
+  print(text)
   d = db()
   d.digest(text)
+  print(d)
   print('')
 
   def ask(query):
@@ -128,6 +130,12 @@ def dtest() :
   ask(query)
 
   query = "'Mary' is What?"
+  ask(query)
+
+  query = "'John' is (a What)?"
+  ask(query)
+
+  query = "Who is What?"
   ask(query)
 
 if __name__=='__main__' :

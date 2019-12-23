@@ -1,5 +1,7 @@
 import scanner
 
+trace=False
+
 def to_list(xy):
   if xy==None :
     return ()
@@ -51,14 +53,14 @@ class parser:
 
   def run(self):
     t = to_list(self.par())
-    print("PARSED",t)
+    if trace : print("PARSED",t)
     return t
 
 def parse(text,ground=False) :
   s=scanner.scanner(text,ground=ground)
   for ws in s.run() :
     ws = ("(",) + ws + (")",)
-    print('SCANNED',ws)
+    if trace : print('SCANNED',ws)
     p=parser(ws)
     yield p.run()
 
