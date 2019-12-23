@@ -149,10 +149,11 @@ b='b'
 u1=f(U,g(X,X),g(Y,Y))
 u2=f(b,g(a,Y),Z)
 
-def go() :
+def utest() :
   print(u1,'=',u2)
   print(unifyToEnv(u1, u2))
   print(unifyToTerm(u1,u2))
 
-   
+if __name__=='__main__' :
+  utest()
    

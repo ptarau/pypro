@@ -110,16 +110,25 @@ def dtest() :
    Mary is (a student).
    John is (a pilot).
    '''
-  d=db()
+
+  d = db()
   d.digest(text)
-  query = "Who is What?"
-  print(query)
-  for r in d.search(query) :
-    print(r)
+  print('')
+
+  def ask(query):
+    print(query)
+    for r in d.search(query):
+      print('-->',r)
+    print('')
+
   query = "Who has (a What)?"
-  print(query)
-  for r in d.search(query):
-    print(r)
+  ask(query)
+
+  query = "Who is (a pilot)?"
+  ask(query)
+
+  query = "'Mary' is What?"
+  ask(query)
 
 if __name__=='__main__' :
   dtest()

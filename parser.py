@@ -50,17 +50,17 @@ class parser:
       return (w,ts)
 
   def run(self):
-    return to_list(self.par())
+    t = to_list(self.par())
+    print("PARSED",t)
+    return t
 
 def parse(text,ground=False) :
   s=scanner.scanner(text,ground=ground)
   for ws in s.run() :
     ws = ("(",) + ws + (")",)
+    print('SCANNED',ws)
     p=parser(ws)
     yield p.run()
-
-def parse_ground(text) :
-  yield from parse(text,ground=True)
 
 def ptest() :
   text = """

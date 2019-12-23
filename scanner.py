@@ -8,6 +8,9 @@ class Int :
   def __repr__(self):
     return "Int("+str(self.val)+")"
 
+def qtrim(s) :
+  return s[1:-1]
+
 class scanner:
   def __init__(self,text,ground=True):
     self.text=text
@@ -17,6 +20,7 @@ class scanner:
       (r"[-+]?\d+\.\d+", lambda sc, tok: ("FLOAT", float(tok))),
       (r"[-+]?\d+", lambda sc, tok: ("INT", Int(tok))),
       (r"[a-z]+[\w]*", lambda sc, tok: ("ID", tok)),
+      (r"'[\w]+'", lambda sc, tok: ("ID", qtrim(tok))),
       (r"[A-Z_]+[\w]*", lambda sc, tok: ("VAR", self.sym(tok))),
       (r"[(]", lambda sc, tok: ("LPAR", tok)),
       (r"[)]", lambda sc, tok: ("RPAR", tok)),
