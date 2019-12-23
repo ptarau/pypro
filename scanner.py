@@ -27,7 +27,7 @@ class scanner:
       (r"[.?]", lambda sc, tok: ("END", '.')),
       (r"[:]", lambda sc, tok: ("IF", tok)),
       (r"[,]", lambda sc, tok: ("AND", tok)),
-      (r"[;]", lambda sc, tok: ("OR", tok)),
+ #     (r"[;]", lambda sc, tok: ("OR", tok)),
       (r"\s+", None),  # None == skip tok.
     ])
 
