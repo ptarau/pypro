@@ -24,12 +24,16 @@ class scanner:
       (r"[A-Z_]+[\w]*", lambda sc, tok: ("VAR", self.sym(tok))),
       (r"[(]", lambda sc, tok: ("LPAR", tok)),
       (r"[)]", lambda sc, tok: ("RPAR", tok)),
-      (r"[.?]", lambda sc, tok: ("END", '.')),
+      (r"[.?]", lambda sc, tok: ("END", self.newsyms())),
       (r"[:]", lambda sc, tok: ("IF", tok)),
       (r"[,]", lambda sc, tok: ("AND", tok)),
  #     (r"[;]", lambda sc, tok: ("OR", tok)),
       (r"\s+", None),  # None == skip tok.
     ])
+
+  def newsyms(self) :
+    self.syms=dict()
+    return "."
 
   def sym(self,w) :
     if self.ground : return w
