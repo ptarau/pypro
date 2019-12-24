@@ -60,11 +60,11 @@ class parser:
     return t
 
 def to_clause(xs) :
-  if ':' not in xs : return xs
+  if ':' not in xs : return (xs,())
   neck = xs.index(':')
   head = xs[:neck]
   body = xs[neck+1:]
-  if ',' not in xs : return (head,body)
+  if ',' not in xs : return (head,(body,))
   bss=[]
   bs=[]
   for b in body :
@@ -93,13 +93,13 @@ def parse(text,ground=False,rule=False) :
 
 def ptest() :
   text = """
-    app () (). 
-      app (X Xs) Ys (X Zs) : 
-        app Xs Ys Zs.
-        
-    nrev () ().
-    nrev (X Xs) Zs : nrev Xs Ys, app Ys, (X) Zs.
-    """
+       app () Ys Ys. 
+       app (X Xs) Ys (X Zs) : 
+           app Xs Ys Zs.
+
+       nrev () ().
+       nrev (X Xs) Zs : nrev Xs Ys, app Ys (X) Zs.
+       """
   for c in parse(text,ground=True):
     print(c)
   print('')

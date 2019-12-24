@@ -7,8 +7,8 @@
 def  unifyToTerm(x1,x2,trail=None,ocheck=False) :
   vs = makeEnv()
   if unifyWithEnv(x1,x2,vs,trail,ocheck) :
-    t1 = extractType(x1,vs)
-    t2 = extractType(x2,vs)
+    t1 = extractTerm(x1,vs)
+    t2 = extractTerm(x2,vs)
     #print (t1,'==',t2)
     return t1
   else :
@@ -31,7 +31,7 @@ def extendTo(n,vs) :
   return vs
 
 # builds a term following bindings in environment. es      
-def extractType(x,es) : 
+def extractTerm(x,es) : 
   def et(x) :
     t = deref(x,es)
     if isvar(t) : return t
@@ -101,9 +101,36 @@ def bind(i,t,vs,trail,ocheck) :
   if ocheck and occurs1(i,t,vs) : return False
   else :
     vs[i]=t
-    if trail!=None : trail.push(i)
+    if trail!=None : trail.append(i)
     return True
 
+# utilities
+
+def const_of0(t) :
+  if isvar(t):
+    pass
+  elif istuple(t) :
+    for x in t:
+      yield from const_of(x)
+  else :
+    yield t
+
+def const_of(t) : return set(const_of0(t))
+
+def vars_of0(t) :
+  if isvar(t):
+    yield t
+  elif istuple(t) :
+    for x in t:
+      yield from vars_of(x)
+  else :
+    pass
+
+def vars_of(t) : return set(vars_of0(t))
+
+def has_vars(t) :
+  r = next(vars_of0(t),-1)
+  return r>=0
 
 # tests        
    

@@ -1,38 +1,11 @@
 from collections import defaultdict
 
-from unify import unifyToEnv, unifyToTerm, isvar,istuple
+from unify import unifyToEnv, unifyToTerm, isvar,istuple,vars_of,const_of, has_vars
 from parser import parse
 from scanner import Int
 
 def make_index() :
   return defaultdict(set)
-
-def const_of0(t) :
-  if isvar(t):
-    pass
-  elif istuple(t) :
-    for x in t:
-      yield from const_of(x)
-  else :
-    yield t
-
-def const_of(t) : return set(const_of0(t))
-
-def vars_of0(t) :
-  if isvar(t):
-    yield t
-  elif istuple(t) :
-    for x in t:
-      yield from vars_of(x)
-  else :
-    pass
-
-def vars_of(t) : return set(vars_of0(t))
-
-def has_vars(t) :
-  r = next(vars_of0(t),-1)
-  return r>=0
-
 
 def add_clause(index,css,h) :
   i=len(css)
