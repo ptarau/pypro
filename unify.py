@@ -46,10 +46,11 @@ def unifyWithEnv(x1,x2,vs,trail,ocheck) :
   b1 = isvar(t1)
   b2 = isvar(t2)
   if b1 and b2 :
-    if t1 != t2 : 
+    if t1 != t2 :
       i,j = max(t1,t2),min(t1,t2)
       vs[i]=j
-      trail.append(i)
+      if trail != None :
+        trail.append(i)
     return True
   elif b1:
     return bind(t1,t2,vs,trail,ocheck)
