@@ -46,20 +46,22 @@ def unfold(g,css,vs,trail) :
 def interp(css,goals) :
   goal=goals[0]
   trail=[]
-  gvars=vars_of(goal)
-  l0=len(gvars)
+  l0=len(vars_of(goal))
   vs=makeEnv(size=l0)
   def step(g) :
-      print('EVAL:',g)
+      #print('EVAL:',g)
+      #print('GOAL',extractTerm(goal,vs))
       for bs in unfold(g,css,vs,trail) :
         #print("BS",bs)
         newbs=[]
+        rs=[]
         for b in bs :
           print('ENTER',b)
-          r = step(b)
+          r = list(step(b))
+          if r : rs.append(r)
           print("EXIT_", b)
           newbs.append(b)
-        return newbs
+        yield rs
   return list(step(goal))
 
 
@@ -73,7 +75,7 @@ class natlog:
     goals = tuple(parse(quest,ground=False,rule=False))
     print('GOAL PARSED',goals)
     r=interp(self.css,goals)
-    print('ANSWER',goals)
+    print('ANSWER',list(r))
 
   def __repr__(self):
     xs = [str(cs) + '\n' for cs in self.css]
