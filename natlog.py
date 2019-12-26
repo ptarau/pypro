@@ -60,9 +60,10 @@ class natlog:
     for a in interp(self.css,goals) :
       print('ANSWER',a)
 
-  def consult(self) :
-    with file_name as f:
+  def consult(self,file_name) :
+    with open(file_name,'r') as f:
       text = f.read()
+      return text
 
   def __repr__(self):
     xs = [str(cs) + '\n' for cs in self.css]
@@ -70,9 +71,9 @@ class natlog:
 
 
 def go() :
-  n=natlog(file_name="perm.nat")
+  n=natlog(file_name="natprogs/perm.nat")
   n.query("perm (1 (2 (3 ()))) Ps?")
-  n=natlog(file_name="nrev.nat")
+  n=natlog(file_name="natprogs/nrev.nat")
   n.query("nrev  (a (b (c (d ())))) R ?")
 
 # tests
