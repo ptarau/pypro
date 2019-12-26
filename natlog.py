@@ -1,85 +1,75 @@
 from parser import parse
 from unify import unifyWithEnv, extractTerm, \
    isvar,istuple,vars_of,const_of, has_vars,makeEnv,extendTo
+from conslist import *
 
-def refresh(l,t,vs) :
+def relocate(l,t) :
+  vs=set()
   def ref(t) :
     if isvar(t) :
       newt=l+t
-      extendTo(newt,vs)
+      vs.add(newt)
       return newt
     elif not istuple(t) : return t
     else : return tuple(map(ref,t))
-  return ref(t)
+  t=ref(t)
+  return l+len(vs),t
 
-def show(gs,vs) :
-  print('vvvvvvvvvvvvvvvvvvvvvv')
-  for g in gs:
-    print(extractTerm(g,vs))
-  print('^^^^^^^^^^^^^^^^^^^^')
-  print('')
-
-def unfold(g,css,vs,trail) :
-  for choice in range(len(css)):
-    (h0, bs0) = css[choice]
-    l = len(vs)
-    tl = len(trail)
-    h = refresh(l, h0, vs)
-    ok = unifyWithEnv(h, g, vs, trail, ocheck=True)
+def unfold(l,goal,gs,css) :
+  assert isLList(gs)
+  g0,gs0=gs
+  for cs0 in css:
+    newl,cs = relocate(l,cs0) # term, sorted list
+    h,bs0=cs
+    vs=[]
+    ok = unifyWithEnv(h, g0, vs, trail=None, ocheck=True)
     if not ok: # FAILURE
-      for v in trail[tl:]:
-        if v < l:
-          vs[v] = v
-        else :
-          assert not isvar(vs[v])
-      trail = trail[0:tl]
-      vs = vs[0:l]
       continue
-    else: # SUCCESS
-      bs=[]
-      for b0 in bs0:
-        b = refresh(l, b0, vs)
-        bs.append(extractTerm(b,vs))
-        #bs.append(b)
-      yield bs
+    else:      # SUCCESS
+      newgoal=extractTerm(goal,vs)
+      g=extractTerm(g0,vs)
+      bs=fromList(bs0)
+      bsgs=concat(bs,gs0)
+      newgs=extractTerm(bsgs,vs)
+      r=newl,(newgoal,newgs)
+      yield r
 
 def interp(css,goals) :
-  goal=goals[0]
-  trail=[]
-  l0=len(vars_of(goal))
-  vs=makeEnv(size=l0)
-  def step(g) :
-      #print('EVAL:',g)
-      #print('GOAL',extractTerm(goal,vs))
-      for bs in unfold(g,css,vs,trail) :
-        #print("BS",bs)
-        newbs=[]
-        rs=[]
-        for b in bs :
-          print('ENTER',b)
-          r = list(step(b))
-          if r : rs.append(r)
-          print("EXIT_", b)
-          newbs.append(b)
-        yield rs
-  return list(step(goal))
-
-
+  l,goal=relocate(0,goals[0])
+  k=100
+  print('GOAL STARTS', goal)
+  def step(k,l,g,gs) :
+    if k==0 : return
+    if gs == () :
+      yield g
+    else :
+      for newl,newggs in unfold(l,g,gs,css) :
+        newg,newgs=newggs
+        yield from step(k-1,newl,newg,newgs)
+  yield from step(k,l,goal,(goal,()))
 
 class natlog:
-  def __init__(self,text):
+  def __init__(self,text=None,file_name=None):
+    if file_name :
+      text=consult(file_name)
     self.css=tuple(parse(text,ground=False,rule=True))
-    #print(self.css)
 
   def query(self,quest):
     goals = tuple(parse(quest,ground=False,rule=False))
     print('GOAL PARSED',goals)
-    r=interp(self.css,goals)
-    print('ANSWER',list(r))
+    for a in interp(self.css,goals) :
+      print('ANSWER',a)
+
+  def consult(self) :
+    with file_name as f:
+      text = f.read()
 
   def __repr__(self):
     xs = [str(cs) + '\n' for cs in self.css]
     return "".join(xs)
+
+
+# tests
 
 def natex() :
   text = """
@@ -89,8 +79,15 @@ def natex() :
 
       nrev () ().
       nrev (X Xs) Zs : nrev Xs Ys, app Ys (X ()) Zs.
+      
+perm () ().
+perm (X Xs) Zs : perm Xs Ys, ins X Ys Zs.
+
+ins X Xs (X Xs).
+ins X (Y Xs) (Y Ys) : ins X Xs Ys.
+
       """
-  return natlog(text)
+  return natlog(text=text)
 
 def ntest() :
   n=natex()
@@ -98,7 +95,9 @@ def ntest() :
   print(n)
   #n.query("app Xs Ys (a (b (c ())))?")
   #n.query("app (a (b ())) (c (d ())) R ?")
-  n.query("nrev  (a (b (c (d ())))) R ?")
+  #n.query("nrev  (a (b (c (d ())))) R ?")
+  #n.query("ins x (1 (2 (3 ()))) Ps?")
+  n.query("perm (1 (2 (3 ()))) Ps?")
 
 def ppp(*args) :print(*args)
 
