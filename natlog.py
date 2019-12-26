@@ -60,6 +60,12 @@ class natlog:
     for a in interp(self.css,goals) :
       print('ANSWER',a)
 
+  def repl(self):
+    while(True):
+      q=input('?-')
+      if not q : return
+      self.query(q)
+
   def consult(self,file_name) :
     with open(file_name,'r') as f:
       text = f.read()
@@ -75,6 +81,7 @@ def go() :
   n.query("perm (1 (2 (3 ()))) Ps?")
   n=natlog(file_name="natprogs/nrev.nat")
   n.query("nrev  (a (b (c (d ())))) R ?")
+  n.repl()
 
 # tests
 
@@ -105,6 +112,7 @@ def ntest() :
   #n.query("nrev  (a (b (c (d ())))) R ?")
   #n.query("ins x (1 (2 (3 ()))) Ps?")
   n.query("perm (1 (2 (3 ()))) Ps?")
+
 
 def ppp(*args) :print(*args)
 
