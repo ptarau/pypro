@@ -51,7 +51,7 @@ def interp(css,goals) :
 class natlog:
   def __init__(self,text=None,file_name=None):
     if file_name :
-      text=consult(file_name)
+      text=self.consult(file_name)
     self.css=tuple(parse(text,ground=False,rule=True))
 
   def query(self,quest):
@@ -68,6 +68,12 @@ class natlog:
     xs = [str(cs) + '\n' for cs in self.css]
     return "".join(xs)
 
+
+def go() :
+  n=natlog(file_name="perm.nat")
+  n.query("perm (1 (2 (3 ()))) Ps?")
+  n=natlog(file_name="nrev.nat")
+  n.query("nrev  (a (b (c (d ())))) R ?")
 
 # tests
 
