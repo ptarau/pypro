@@ -56,7 +56,7 @@ def unifyWithEnv(x1,x2,vs,trail,ocheck) :
     return bind(t1,t2,vs,trail,ocheck)
   elif b2 :  
     return bind(t2,t1,vs,trail,ocheck)
-  elif not istuple(t1) :
+  elif not istuple(t1) or not istuple(t2):
     return t1==t2
   else :
     n1 = len(t1)

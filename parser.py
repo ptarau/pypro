@@ -76,8 +76,6 @@ def to_clause(xs) :
   bss.append(tuple(bs))
   return (head,tuple(bss))
 
-
-
 # main exported parser + scanner
 def parse(text,ground=False,rule=False) :
   s=scanner.scanner(text,ground=ground)

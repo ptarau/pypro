@@ -5,6 +5,12 @@ class Int :
     if not isinstance(val,int) :
       val=int(val)
     self.val=val
+
+  def __eq__(self, other):
+    if isinstance(other,Int) :
+      return self.val == other.val
+    return False
+
   def __repr__(self):
     return "Int("+str(self.val)+")"
 
