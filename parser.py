@@ -81,7 +81,6 @@ def parse(text,ground=False,rule=False) :
   s=scanner.scanner(text,ground=ground)
   for ws in s.run() :
     ws = ("(",) + ws + (")",)
-    if trace : print('SCANNED',ws)
     p=parser(ws)
     r = p.run()
     if rule : r=to_clause(r)

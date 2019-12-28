@@ -18,9 +18,21 @@ class db:
     self.index=make_index() # content --> int index
     self.css=[]  # content as ground tuples
 
+  def ingest(self, fname):
+    import json
+    with open(fname,'r') as f:
+      ts=json.load(f)
+    for t in ts :
+      self.add_clause(tuple(t))
+
   def digest(self,text):
     for cs in parse(text,ground=True) :
       self.add_clause(cs)
+
+  def load(self,fname):
+    with open(fname,'r') as f:
+      text=f.read()
+      self.digest(text.replace('\n',' '))
 
   def add_clause(self,cs):
     add_clause(self.index,self.css,cs)
@@ -48,8 +60,14 @@ class db:
         for rs in self.match_of(qs) :
           yield rs
 
+  def ask(self, query):
+    print(query)
+    for r in self.search(query):
+      print('-->', r)
+    print('')
+
   def __repr__(self):
-    xs=[str(cs)+'\n' for cs in self.css]
+    xs=[str(cs)+'\n' for cs in enumerate(self.css)]
     return "".join(xs)
 
 c1=('a',Int(1),'car','a')
@@ -90,26 +108,41 @@ def dtest() :
   print(d)
   print('')
 
-  def ask(query):
-    print(query)
-    for r in d.search(query):
-      print('-->',r)
-    print('')
 
   query = "Who has (a What)?"
-  ask(query)
+  d.ask(query)
 
   query = "Who is (a pilot)?"
-  ask(query)
+  d.ask(query)
 
   query = "'Mary' is What?"
-  ask(query)
+  d.ask(query)
 
   query = "'John' is (a What)?"
-  ask(query)
+  d.ask(query)
 
   query = "Who is What?"
-  ask(query)
+  d.ask(query)
+
+def dtestf():
+  fname='natprogs/db.nat'
+  d = db()
+  d.load(fname)
+  #print(d)
+  print('loaded')
+  # d.ask("A B C D lustre?")
+  d.ask("seismic B C D E?")
+
+def dtestj():
+  fname='natprogs/db.json'
+  d = db()
+  d.ingest(fname)
+  #print(d)
+  print('loaded')
+  #d.ask("A multiple X Y Z?")
+  # d.ask("A B C D lustre?")
+  d.ask("A seismic B C D?")
+
 
 if __name__=='__main__' :
   dtest()

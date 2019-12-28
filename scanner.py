@@ -16,7 +16,7 @@ class Int :
 
 def qtrim(s) :
   return s[1:-1]
-
+        
 class scanner:
   def __init__(self,text,ground=True):
     self.text=text
@@ -26,7 +26,7 @@ class scanner:
       (r"[-+]?\d+\.\d+", lambda sc, tok: ("FLOAT", float(tok))),
       (r"[-+]?\d+", lambda sc, tok: ("INT", Int(tok))),
       (r"[a-z]+[\w]*", lambda sc, tok: ("ID", tok)),
-      (r"'[\w]+'", lambda sc, tok: ("ID", qtrim(tok))),
+      (r"'[\w\s\-\.\/,%=!\+\(\)]+'", lambda sc, tok: ("ID", qtrim(tok))),
       (r"[A-Z_]+[\w]*", lambda sc, tok: ("VAR", self.sym(tok))),
       (r"[(]", lambda sc, tok: ("LPAR", tok)),
       (r"[)]", lambda sc, tok: ("RPAR", tok)),
@@ -63,7 +63,7 @@ class scanner:
 # tests
 
 def stest() :
-  sent = "(The cat -42) (sits on (the mat 0.42)). \n the Dog _barks ."
+  sent = "(The cat -42) ('sits on' (the mat 0.42)). \n the Dog _barks ."
   s=scanner(sent)
   print(list(s.run()))
 
