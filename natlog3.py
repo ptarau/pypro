@@ -3,7 +3,7 @@ from unify import unifyWithEnv,extractTerm, \
                   isvar,istuple,makeEnv
 from conslist import *
 
-# fresh copy of term, with vars >=l
+# frech copy of term, with vars >=l
 def relocate(l,t) :
   vs=set()
   def ref(t) :
@@ -24,15 +24,13 @@ def interp(css,goals) :
     vtop=len(vs)
 
     def undo(vtop,ttop) :
-      top = len(vs)
-      for _ in range(vtop, top):
-        vs.pop()
-
       top = len(trail)
       for _ in range(ttop, top):
         v = trail.pop()
-        if v<vtop:
-          vs[v] = v
+        vs[v] = v
+      top = len(vs)
+      for _ in range(vtop, top):
+        vs.pop()
 
     def unfold(l,b,gs):
       g0, gs0 = gs
@@ -40,21 +38,21 @@ def interp(css,goals) :
         newl, cs = relocate(l, cs0)  # term, sorted list
         h, bs0 = cs
         vtop=len(vs)
-        if not unifyWithEnv(h, g0, vs, trail=trail, ocheck=False):
+        if not unifyWithEnv(h, g0, vs, trail=trail, ocheck=True):
           undo(vtop,ttop)
           continue  # FAILURE
         else:
-          newb = b
-          g = g0
+          newb = extractTerm(b, vs)
+          g = extractTerm(g0, vs)
           bs = fromList(bs0)
           bsgs = concat(bs, gs0)
-          newgs = bsgs
+          newgs = extractTerm(bsgs, vs)
           r = newl, (newb, newgs)
           yield r  # SUCCESS
 
     nonlocal goals
     if goals == () :
-      yield extractTerm(g,vs)
+      yield g
     else :
       for newl,newggs in unfold(l,g,goals) :
         newg,goals=newggs

@@ -3,7 +3,7 @@ from unify import unifyWithEnv,extractTerm, \
                   isvar,istuple,makeEnv
 from conslist import *
 
-# fresh copy of term, with vars >=l
+# frech copy of term, with vars >=l
 def relocate(l,t) :
   vs=set()
   def ref(t) :
@@ -16,59 +16,35 @@ def relocate(l,t) :
   t=ref(t)
   return l+len(vs),t
 
+# unfolds first goal in the body with matching clauses
+def unfold(l,goal,gs,css) :
+  assert isLList(gs)
+  g0,gs0=gs
+  for cs0 in css:
+    newl,cs = relocate(l,cs0) # term, sorted list
+    h,bs0=cs
+    vs=[]
+    if not unifyWithEnv(h, g0, vs, trail=None, ocheck=True) :
+      continue  # FAILURE
+    else:
+      newgoal=extractTerm(goal,vs)
+      g=extractTerm(g0,vs)
+      bs=fromList(bs0)
+      bsgs=concat(bs,gs0)
+      newgs=extractTerm(bsgs,vs)
+      r=newl,(newgoal,newgs)
+      yield r # SUCCESS
+
 # unfolds repeatedly; when done yields answer
 def interp(css,goals) :
-
-  def step(l,g) :
-    ttop=len(trail)
-    vtop=len(vs)
-
-    def undo(vtop,ttop) :
-      top = len(vs)
-      for _ in range(vtop, top):
-        vs.pop()
-
-      top = len(trail)
-      for _ in range(ttop, top):
-        v = trail.pop()
-        if v<vtop:
-          vs[v] = v
-
-    def unfold(l,b,gs):
-      g0, gs0 = gs
-      for cs0 in css:
-        newl, cs = relocate(l, cs0)  # term, sorted list
-        h, bs0 = cs
-        vtop=len(vs)
-        if not unifyWithEnv(h, g0, vs, trail=trail, ocheck=False):
-          undo(vtop,ttop)
-          continue  # FAILURE
-        else:
-          newb = b
-          g = g0
-          bs = fromList(bs0)
-          bsgs = concat(bs, gs0)
-          newgs = bsgs
-          r = newl, (newb, newgs)
-          yield r  # SUCCESS
-
-    nonlocal goals
-    if goals == () :
-      yield extractTerm(g,vs)
+  l,goal=relocate(0,goals[0])
+  def step(l,g,gs) :
+    if gs == () : yield g
     else :
-      for newl,newggs in unfold(l,g,goals) :
-        newg,goals=newggs
-        yield from step(newl,newg)
-        undo(vtop,ttop)
-
-  # interp
-  l, goal = relocate(0, goals[0])
-  goals = (goal, ())
-  vs = []
-  trail = []
-
-  yield from step(l,goal)
-
+      for newl,newggs in unfold(l,g,gs,css) :
+        newg,newgs=newggs
+        yield from step(newl,newg,newgs)
+  yield from step(l,goal,(goal,()))
 
 # encapsulates reading code, guery and REPL
 class natlog:
