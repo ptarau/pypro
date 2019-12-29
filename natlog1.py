@@ -3,6 +3,8 @@ from unify import unifyWithEnv,extractTerm, \
                   isvar,istuple,makeEnv
 from conslist import *
 
+print('ver 0.01')
+
 # frech copy of term, with vars >=l
 def relocate(l,t) :
   vs=set()
@@ -52,6 +54,17 @@ class natlog:
     if file_name :
       text=self.consult(file_name)
     self.css=tuple(parse(text,ground=False,rule=True))
+  
+  def solve(self,quest):
+    goals = tuple(parse(quest,ground=False,rule=False))
+    yield from interp(self.css,goals)
+
+  def count(self,quest):
+    c=0
+    for a in self.solve(quest):
+      c+=1
+    return c
+    
 
   def query(self,quest):
     goals = tuple(parse(quest,ground=False,rule=False))

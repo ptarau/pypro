@@ -55,5 +55,25 @@ def go() :
   t5()
   t6()
 
+  
+import timeit
+def time_of(f,x) :
+ start_time = timeit.default_timer()
+ res=f(x)
+ print(x)
+ end_time=timeit.default_timer()
+ print(x,'==>','res = ',res)
+ print('time = ',end_time - start_time)
+ print('')
+ 
+def bm() :
+  n = natlog(file_name="natprogs/queens.nat")
+  print(n)
+  time_of(n.count,"goal Queens?")
+  time_of(n.count, "goal9 Queens?")
+  time_of(n.count, "goal10 Queens?")
+  time_of(n.count, "goal11 Queens?")
+  time_of(n.count, "goal12 Queens?")
+ 
 if __name__=="__main__" :
   t6()

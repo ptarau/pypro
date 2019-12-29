@@ -3,7 +3,7 @@ from unify import unifyWithEnv,extractTerm, \
                   isvar,istuple,makeEnv,extendTo,vars_of
 from conslist import *
 
-
+print('ver 0.05')
 
 # unfolds repeatedly; when done yields answer
 def interp(css,goals) :
@@ -71,6 +71,16 @@ class natlog:
       text=self.consult(file_name)
     self.css=tuple(parse(text,ground=False,rule=True))
 
+  def solve(self,quest):
+    goals = tuple(parse(quest,ground=False,rule=False))
+    yield from interp(self.css,goals)
+
+  def count(self,quest):
+    c=0
+    for a in self.solve(quest):
+      c+=1
+    return c
+    
   def query(self,quest):
     goals = tuple(parse(quest,ground=False,rule=False))
     print('GOAL PARSED:',goals)
