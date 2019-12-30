@@ -8,18 +8,17 @@ from unify import unifyWithEnv,extractTerm, \
 def interp(css,goals) :
 
   def step(goals) :
-    ttop=len(trail)
-    vtop=len(vs)
 
-    def undo(vtop,ttop) :
-      top = len(vs)
-      for _ in range(vtop, top): vs.pop()
-      top = len(trail)
-      for _ in range(ttop, top):
+    def undo(vtop) :
+      l=len(vs)-vtop
+      while(l) :
+        vs.pop()
+        l-=1
+      while(trail) :
         v = trail.pop()
         if v<vtop: vs[v] = v
 
-    def unfold(gs,vtop,ttop):
+    def unfold(gs):
       # fresh copy of term, with vars >=vtop
       def relocate(t):
         if isvar(t):
@@ -32,24 +31,25 @@ def interp(css,goals) :
       for cs in css:
         h,bs=cs
         if not unifyWithEnv(relocate(h), g, vs, trail=trail, ocheck=False):
-          undo(vtop,ttop)
+          undo(vtop)
           continue  # FAILURE
         else:
-          for b in bs[::-1] :
+          for b in reversed(bs) :
             gs1=(relocate(b),gs1)
           yield gs1 # SUCCESS
-
+    # step
+    trail = []
+    vtop = len(vs)
     if goals == () :
       yield extractTerm(goal,vs)
     else :
-      for newgoals in unfold(goals,vtop,ttop) :
+      for newgoals in unfold(goals) :
         yield from step(newgoals)
-        undo(vtop,ttop)
+        undo(vtop)
 
   # interp
   goal = goals[0]
   vs = list(vars_of(goal))
-  trail = []
   yield from step((goal, ()))
 
 # encapsulates reading code, guery and REPL

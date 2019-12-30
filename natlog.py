@@ -8,8 +8,6 @@ from unify import unifyWithEnv,extractTerm, \
 def interp(css,goals) :
 
   def step(goals) :
-    trail = []
-    vtop=len(vs)
 
     def undo(vtop) :
       l=len(vs)-vtop
@@ -20,7 +18,7 @@ def interp(css,goals) :
         v = trail.pop()
         if v<vtop: vs[v] = v
 
-    def unfold(gs,vtop):
+    def unfold(gs):
       # fresh copy of term, with vars >=vtop
       def relocate(t):
         if isvar(t):
@@ -36,14 +34,16 @@ def interp(css,goals) :
           undo(vtop)
           continue  # FAILURE
         else:
-          for b in bs[::-1] :
+          for b in reversed(bs) :
             gs1=(relocate(b),gs1)
           yield gs1 # SUCCESS
-
+    # step
+    trail = []
+    vtop = len(vs)
     if goals == () :
       yield extractTerm(goal,vs)
     else :
-      for newgoals in unfold(goals,vtop) :
+      for newgoals in unfold(goals) :
         yield from step(newgoals)
         undo(vtop)
 
