@@ -25,6 +25,7 @@ def makeEnv(size=0) :
   if size : return list(range(size))
   return []
 
+# extends bindings list
 def extendTo(n,vs) :
   for i in range(len(vs),n+1) :
     vs.append(i)

@@ -1,6 +1,7 @@
 from parser import parse
 from unify import unifyWithEnv,extractTerm, \
                   isvar,istuple,makeEnv,extendTo,vars_of
+from conslist import *
 
 #print('ver 0.06')
 
@@ -22,7 +23,8 @@ def interp(css,goals) :
       def relocate(t):
         if isvar(t):
           newt=vtop+t
-          if newt >= len(vs) : extendTo(newt,vs)
+          if newt >= len(vs) :
+            extendTo(newt,vs)
           return newt
         elif not istuple(t): return t
         else: return tuple(map(relocate,t))
@@ -51,7 +53,9 @@ def interp(css,goals) :
   goals = (goal, ())
   vs = list(vars_of(goal))
   trail = []
+
   yield from step(goal)
+
 
 # encapsulates reading code, guery and REPL
 class natlog:
