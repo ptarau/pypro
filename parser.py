@@ -16,6 +16,7 @@ def to_tuple(xy):
 
 # simple LL(1) recursive descent parser
 # supporting parenthesized tuples
+# scanned from whitespace separated tokens
 class parser:
   def __init__(self,words) :
     self.words=words
@@ -59,6 +60,7 @@ class parser:
     if trace : print("PARSED",t)
     return t
 
+# extracts a Prolog-like clause made of tuples
 def to_clause(xs) :
   if ':' not in xs : return (xs,())
   neck = xs.index(':')
@@ -85,6 +87,7 @@ def parse(text,ground=False,rule=False) :
     r = p.run()
     if rule : r=to_clause(r)
     yield r
+
 
 # tests
 

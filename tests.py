@@ -50,7 +50,9 @@ def t7() :
 
 def dt1() :
   nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
+  print('RULES')
   print(nd)
+  print('DB FACTS')
   print(nd.db)
   nd.query("tc Who is_a animal ?")
 

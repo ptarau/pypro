@@ -19,24 +19,33 @@ class db:
     self.index=make_index() # content --> int index
     self.css=[]  # content as ground tuples
 
-  def ingest(self, fname):
+  # parses text to list of ground tuples
+  def digest(self, text):
+    for cs in parse(text, ground=True):
+      self.add_clause(cs)
+
+  # loads from json list of lists
+  def load_json(self, fname):
     import json
     with open(fname,'r') as f:
       ts=json.load(f)
     for t in ts :
       self.add_clause(tuple(t))
 
-  def digest(self,text):
-    for cs in parse(text,ground=True) :
-      self.add_clause(cs)
-
+  # loads ground facts .nat or .json files
   def load(self,fname):
-    with open(fname,'r') as f:
-      text=f.read()
-      self.digest(text.replace('\n',' '))
+    print(fname)
+    if len(fname) > 4 and fname[-4:]=='.nat' :
+      with open(fname,'r') as f:
+        self.digest(f.read())
+    else :
+      self.load_json(fname)
 
+  # adds a clause and indexes it for all constants
+  # recurevely occurring in it, in any subtuple
   def add_clause(self,cs):
     add_clause(self.index,self.css,cs)
+
 
   def ground_match_of(self,h):
     cs=const_of(h)
@@ -48,15 +57,16 @@ class db:
       r &= self.index[x]
     return r
 
+  # uses unification to match ground fact
+  # with bindining applied to vs and colelcted on trail
   def unify_with_fact(self, h, vs, trail):
     ms = self.ground_match_of(h)
     for i in ms:
       h0 = self.css[i]
-      #u = unifyToTerm(h, h0)
-      #print("TRYING",h,h0)
       u=unifyWithEnv(h, h0, vs, trail=trail, ocheck=False)
       yield u
 
+  # uses unification to match and return ground fact
   def match_of(self,h):
     ms=self.ground_match_of(h)
     for i in ms:
@@ -64,21 +74,27 @@ class db:
       u = unifyToTerm(h,h0)
       if u : yield u
 
+  # searches for a matching tuple
   def search(self,query):
     qss=parse(query,ground=False)
     for qs in qss:
         for rs in self.match_of(qs) :
           yield rs
 
+  # queries the db directly with a text query
   def ask(self, query):
     print(query)
     for r in self.search(query):
       print('-->', r)
     print('')
 
+  # builds possibly very large string representation
+  # of the facts contained in the db
   def __repr__(self):
     xs=[str(cs)+'\n' for cs in enumerate(self.css)]
     return "".join(xs)
+
+# tests
 
 c1=('a',Int(1),'car','a')
 c2=('a',Int(2),'horse','aa')
@@ -104,7 +120,7 @@ def dtest1() :
   print('Gmatch', g3, list(d.ground_match_of(g3)))
   print('Vmatch', g3, list(d.match_of(g3)))
 
-
+# bb built form text
 def dtest() :
   text='''
    John has (a car).
@@ -117,8 +133,6 @@ def dtest() :
   d.digest(text)
   print(d)
   print('')
-
-
   query = "Who has (a What)?"
   d.ask(query)
 
@@ -134,6 +148,7 @@ def dtest() :
   query = "Who is What?"
   d.ask(query)
 
+# db from a .nat file
 def dtestf():
   fname='natprogs/db.nat'
   d = db()
@@ -142,15 +157,14 @@ def dtestf():
   print('loaded')
   d.ask("Who is mammal?")
 
+# db from a json file
 def dtestj():
   fname='natprogs/db.json'
   d = db()
   d.ingest(fname)
   #print(d)
   print('loaded')
-  #d.ask("A multiple X Y Z?")
-  # d.ask("A B C D lustre?")
-  d.ask("A seismic B C D?")
+  #d.ask("A B C?")
 
 
 if __name__=='__main__' :

@@ -3,13 +3,15 @@ from unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
 import db
 
-print('ver 0.07')
+print('version 0.1.0')
 
 # unfolds repeatedly; when done yields answer
 def interp(css, goals ,db=None):
 
+  # reduces goals and yields answer when no more goals
   def step(goals):
 
+    # undoes bindings of variables contained in the trail
     def undo():
       l = len(vs) - vtop
       while (l):
@@ -19,7 +21,7 @@ def interp(css, goals ,db=None):
         v = trail.pop()
         if v < vtop: vs[v] = v
 
-        # fresh copy of term, with vars >=vtop
+    # fresh copy of term, with vars >=vtop
     def relocate(t):
           if isvar(t):
             newt = vtop + t
@@ -31,6 +33,7 @@ def interp(css, goals ,db=None):
           else:
             return tuple(map(relocate, t))
 
+    # unfolds a goal using matching clauses
     def unfold(g, gs):
       for cs in css:
         h, bs = cs
@@ -51,13 +54,13 @@ def interp(css, goals ,db=None):
       trail = []
       vtop = len(vs)
       g, goals = goals
-      if db and g and g[0]=='#':
+      if db and g and g[0]=='#': # matches against database of facts
         g=extractTerm(g[1:],vs)
         for ok in db.unify_with_fact(g,vs,trail):
-          if not ok:
+          if not ok: #FAILURE
             undo()
             continue
-          yield from step(goals)
+          yield from step(goals) # SUCCESS
           undo()
       else :
         for newgoals in unfold(g, goals):
@@ -71,6 +74,7 @@ def interp(css, goals ,db=None):
 
 # encapsulates reading code, guery and REPL
 class natlog:
+  # builds Natlog machine from text, rule file, ground facts tuple store
   def __init__(self, text=None, file_name=None, db_name=None):
     if file_name:
       text = self.consult(file_name)
@@ -78,20 +82,21 @@ class natlog:
     if db_name:
       self.db=db.db()
       self.db.load(db_name)
-      print('DB',db)
     else:
       self.db=None
-
+  # answer generator for given quest
   def solve(self, quest):
     goals = tuple(parse(quest, ground=False, rule=False))
     yield from interp(self.css, goals, db=self.db)
 
+  # answer counter
   def count(self, quest):
     c = 0
     for a in self.solve(quest):
       c += 1
     return c
 
+  # show answers for given query
   def query(self, quest):
     if self.db : db=self.db
     else : db=None
@@ -101,11 +106,13 @@ class natlog:
       print('ANSWER:', answer)
     print('')
 
+  # consults rule file
   def consult(self, file_name):
     with open(file_name, 'r') as f:
       text = f.read()
       return text
 
+  # read-eval-print-loop
   def repl(self):
     print("Type ENTER to quit.")
     while (True):
@@ -113,6 +120,8 @@ class natlog:
       if not q: return
       self.query(q)
 
+
+  # shows tuples of Nalog rule base
   def __repr__(self):
     xs = [str(cs) + '\n' for cs in self.css]
     return "".join(xs)

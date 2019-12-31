@@ -8,8 +8,6 @@ def  unifyToTerm(x1,x2,trail=None,ocheck=False) :
   vs = makeEnv()
   if unifyWithEnv(x1,x2,vs,trail,ocheck) :
     t1 = extractTerm(x1,vs)
-    #t2 = extractTerm(x2,vs)
-    #print (t1,'==',t2)
     return t1
   else :
     return None
