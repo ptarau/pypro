@@ -76,4 +76,4 @@ def bm() :
   time_of(n.count, "goal12 Queens?")
  
 if __name__=="__main__" :
-  t6()
+  t2()

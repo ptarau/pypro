@@ -1,88 +1,96 @@
 from parser import parse
-from unify import unifyWithEnv,extractTerm, \
-                  isvar,istuple,makeEnv,extendTo,vars_of
-from conslist import *
+from unify import unifyWithEnv, extractTerm, \
+  isvar, istuple, makeEnv, extendTo, vars_of
 
-#print('ver 0.06')
+print('ver 0.06')
+
 
 # unfolds repeatedly; when done yields answer
-def interp(css,goals) :
+def interp(css, goals):
+  def step(g,goals):
+    vtop = len(vs)
 
-  def step(g) :
-    ttop=len(trail)
-    vtop=len(vs)
-    def undo(vtop,ttop) :
+    def undo(vtop):
       top = len(vs)
-      for _ in range(vtop, top): vs.pop()
-      top = len(trail)
-      for _ in range(ttop, top):
+      l = len(vs) - vtop
+      while (l):
+        vs.pop()
+        l -= 1
+      top=len(trail)
+      while trail:
         v = trail.pop()
-        if v<vtop: vs[v] = v
-    def unfold(gs,vtop,ttop):
+        if v < vtop: vs[v] = v
+
+    def unfold(b, gs, vtop):
       # fresh copy of term, with vars >=vtop
       def relocate(t):
         if isvar(t):
-          newt=vtop+t
-          if newt >= len(vs) :
-            extendTo(newt,vs)
+          newt = vtop + t
+          if newt >= len(vs):
+            extendTo(newt, vs)
           return newt
-        elif not istuple(t): return t
-        else: return tuple(map(relocate,t))
-      g, gs1 = gs
-      for cs in css:
-        h,bs=cs
-        if not unifyWithEnv(relocate(h), g, vs, trail=trail, ocheck=False):
-          undo(vtop,ttop)
+        elif not istuple(t):
+          return t
+        else:
+          return tuple(map(relocate, t))
+
+      g0, gs0 = gs
+      for cs0 in css:
+        h0, bs0 = cs0
+        h = relocate(h0)
+        if not unifyWithEnv(h, g0, vs, trail=trail, ocheck=False):
+          undo(vtop)
           continue  # FAILURE
         else:
-          for b in bs[::-1] :
-            gs1=(relocate(b),gs1)
-          yield gs1 # SUCCESS
+          bs1 = relocate(bs0)
+          bsgs = gs0
+          for b1 in reversed(bs1) :
+            bsgs=(b1,bsgs)
+          yield bsgs  # SUCCESS
 
-    nonlocal goals
-    if goals == () :
-      yield extractTerm(g,vs)
-    else :
-      for ngs in unfold(goals,vtop,ttop) :
-        goals=ngs
-        yield from step(g)
-        undo(vtop,ttop)
+    trail=[]
+    if goals == ():
+      yield extractTerm(g, vs)
+    else:
+      for newggs in unfold(g, goals, vtop):
+        goals = newggs
+        yield from step(g,goals)
+        undo(vtop)
 
   # interp
   goal = goals[0]
   goals = (goal, ())
   vs = list(vars_of(goal))
-  trail = []
 
-  yield from step(goal)
+  yield from step(goal,goals)
 
 
 # encapsulates reading code, guery and REPL
 class natlog:
-  def __init__(self,text=None,file_name=None):
-    if file_name :
-      text=self.consult(file_name)
-    self.css=tuple(parse(text,ground=False,rule=True))
+  def __init__(self, text=None, file_name=None):
+    if file_name:
+      text = self.consult(file_name)
+    self.css = tuple(parse(text, ground=False, rule=True))
 
-  def solve(self,quest):
-    goals = tuple(parse(quest,ground=False,rule=False))
-    yield from interp(self.css,goals)
+  def solve(self, quest):
+    goals = tuple(parse(quest, ground=False, rule=False))
+    yield from interp(self.css, goals)
 
-  def count(self,quest):
-    c=0
+  def count(self, quest):
+    c = 0
     for a in self.solve(quest):
-      c+=1
+      c += 1
     return c
 
-  def query(self,quest):
-    goals = tuple(parse(quest,ground=False,rule=False))
-    print('GOAL PARSED:',goals)
-    for answer in interp(self.css,goals) :
-      print('ANSWER:',answer)
+  def query(self, quest):
+    goals = tuple(parse(quest, ground=False, rule=False))
+    print('GOAL PARSED:', goals)
+    for answer in interp(self.css, goals):
+      print('ANSWER:', answer)
     print('')
 
-  def consult(self,file_name) :
-    with open(file_name,'r') as f:
+  def consult(self, file_name):
+    with open(file_name, 'r') as f:
       text = f.read()
       return text
 
