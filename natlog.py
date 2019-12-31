@@ -47,6 +47,21 @@ def interp(css, goals ,db=None):
             bsgs=(b1,bsgs)
           yield bsgs  # SUCCESS
 
+    # special operators
+    def db_call(g,goals) :
+      for ok in db.unify_with_fact(g, vs, trail):
+        if not ok:  # FAILURE
+          undo()
+          continue
+        yield from step(goals)  # SUCCESS
+        undo()
+    def python_call(g,goals):
+      f=eval(g[0])
+      f(g[1:])
+      #print('PYYYYY',g)
+
+
+
     # step
     if goals == ():
       yield extractTerm(goal, vs)
@@ -54,13 +69,14 @@ def interp(css, goals ,db=None):
       trail = []
       vtop = len(vs)
       g, goals = goals
-      if db and g and g[0]=='#': # matches against database of facts
-        g=extractTerm(g[1:],vs)
-        for ok in db.unify_with_fact(g,vs,trail):
-          if not ok: #FAILURE
-            undo()
-            continue
-          yield from step(goals) # SUCCESS
+      op=g[0]
+      if op in ["~","`","``"] :
+         g = extractTerm(g[1:], vs)
+         if op=='~': # matches against database of facts
+           yield from db_call(g,goals)
+         elif op=='`' :
+          python_call(g,goals)
+          yield from step(goals)
           undo()
       else :
         for newgoals in unfold(g, goals):

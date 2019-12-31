@@ -1,0 +1,11 @@
+a 1.
+a 2.
+
+b X : a X.
+b 3.
+
+c 1.
+c 3.
+
+goal X: b X, `print 'printing b =' X, c X.
+goal no_more : `print done.

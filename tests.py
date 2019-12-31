@@ -48,13 +48,21 @@ def t7() :
   print('Enter some queries!')
   n.repl()
 
-def dt1() :
+def db_test() :
   nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
   print('RULES')
   print(nd)
   print('DB FACTS')
   print(nd.db)
   nd.query("tc Who is_a animal ?")
+
+
+def py_test() :
+  nd = natlog(file_name="natprogs/py_call.nat")
+  print('RULES')
+  print(nd)
+  nd.query("goal X?")
+
 
 def go() :
   t1()
@@ -85,4 +93,5 @@ def bm() :
   time_of(n.count, "goal12 Queens?")
  
 if __name__=="__main__" :
-  dt1()
+  # db_test()
+  py_test()
