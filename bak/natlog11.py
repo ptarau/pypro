@@ -58,6 +58,7 @@ def interp(css, goals ,db=None):
     def python_call(g,goals):
       f=eval(g[0])
       f(g[1:])
+      #print('PYYYYY',g)
 
 
 
@@ -69,7 +70,7 @@ def interp(css, goals ,db=None):
       vtop = len(vs)
       g, goals = goals
       op=g[0]
-      if op in ["~","`","``","^"] :
+      if op in ["~","`","``"] :
          g = extractTerm(g[1:], vs)
          if op=='~': # matches against database of facts
            yield from db_call(g,goals)
@@ -77,11 +78,6 @@ def interp(css, goals ,db=None):
           python_call(g,goals)
           yield from step(goals)
           undo()
-         elif op=='^' :
-           yield g
-           yield from step(goals)
-           undo()
-
       else :
         for newgoals in unfold(g, goals):
           yield from step(newgoals)

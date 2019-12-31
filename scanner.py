@@ -28,7 +28,7 @@ class scanner:
       (r"[a-z]+[\w]*", lambda sc, tok: ("ID", tok)),
       (r"'[\w\s\-\.\/,%=!\+\(\)]+'", lambda sc, tok: ("ID", qtrim(tok))),
       (r"[A-Z_]+[\w]*", lambda sc, tok: ("VAR", self.sym(tok))),
-      (r"~|``|`", lambda sc, tok: ("OP", tok)),
+      (r"~|``|`|\^", lambda sc, tok: ("OP", tok)),
       (r"[(]", lambda sc, tok: ("LPAR", tok)),
       (r"[)]", lambda sc, tok: ("RPAR", tok)),
       (r"[.?]", lambda sc, tok: ("END", self.newsyms())),
