@@ -17,8 +17,9 @@ def t1():
 
 def t2()  :
   n=natlog(file_name="natprogs/tc.nat")
-  n.query("tc cat is What ?")
-  n.query("tc Who is What ?")
+  print(n)
+  n.query("tc Who is animal ?")
+  #n.query("tc Who is What ?")
 
 
 def t4():
@@ -46,6 +47,12 @@ def t7() :
   n = natlog(file_name="natprogs/family.nat")
   print('Enter some queries!')
   n.repl()
+
+def dt1() :
+  nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
+  print(nd)
+  print(nd.db)
+  nd.query("tc Who is_a animal ?")
 
 def go() :
   t1()
@@ -76,4 +83,4 @@ def bm() :
   time_of(n.count, "goal12 Queens?")
  
 if __name__=="__main__" :
-  t2()
+  dt1()

@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-from unify import unifyToEnv, unifyToTerm, isvar,istuple,vars_of,const_of, has_vars
+from unify import unifyToEnv, unifyToTerm, unifyWithEnv, \
+     isvar,istuple,vars_of,const_of, has_vars
 from parser import parse
 from scanner import Int
 
@@ -46,6 +47,15 @@ class db:
     for x in cs:
       r &= self.index[x]
     return r
+
+  def unify_with_fact(self, h, vs, trail):
+    ms = self.ground_match_of(h)
+    for i in ms:
+      h0 = self.css[i]
+      #u = unifyToTerm(h, h0)
+      #print("TRYING",h,h0)
+      u=unifyWithEnv(h, h0, vs, trail=trail, ocheck=False)
+      yield u
 
   def match_of(self,h):
     ms=self.ground_match_of(h)
@@ -128,10 +138,9 @@ def dtestf():
   fname='natprogs/db.nat'
   d = db()
   d.load(fname)
-  #print(d)
+  print(d)
   print('loaded')
-  # d.ask("A B C D lustre?")
-  d.ask("seismic B C D E?")
+  d.ask("Who is mammal?")
 
 def dtestj():
   fname='natprogs/db.json'

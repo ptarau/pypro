@@ -1,4 +1,3 @@
-cat is feline.
 tiger is feline.
 mouse is rodent.
 feline is mammal.
@@ -6,9 +5,6 @@ rodent is mammal.
 snake is reptile.
 mammal is animal.
 reptile is animal.
-
-tc A Rel C : A Rel B, tc1 B Rel C.
-
-tc1 B _Rel B.
-tc1 B Rel C : tc B Rel C.
-
+bee is insect.
+ant is insect.
+insect is animal.

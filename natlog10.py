@@ -53,10 +53,13 @@ def interp(css, goals ,db=None):
       g, goals = goals
       if db and g and g[0]=='#':
         g=extractTerm(g[1:],vs)
+        #print('  DB_CALL:',g,'LEN0',len(trail),goals)
         for ok in db.unify_with_fact(g,vs,trail):
           if not ok:
+            #print('    FAIL', g,len(trail))
             undo()
             continue
+          #print('  BIND',extractTerm(g,vs),'-->',ok,trail,vs,goals)
           yield from step(goals)
           undo()
       else :
