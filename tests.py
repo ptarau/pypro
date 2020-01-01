@@ -107,8 +107,20 @@ def bm() :
   return # runs, but quite a bit longer
   time_of(n.count, "goal11 Queens?")
   time_of(n.count, "goal12 Queens?")
- 
+
+def prof() :
+  import cProfile
+  p=cProfile.Profile()
+  def fun() :
+    n=natlog(text=my_text)
+    n.count('goal 200 L?')
+
+  p.runcall(fun)
+  p.print_stats(sort=1)
+
 if __name__=="__main__" :
   # db_test()
-  py_test()
+  #py_test()
   #bm()
+  #prof()
+  t2()
