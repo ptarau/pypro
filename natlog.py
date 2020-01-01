@@ -1,8 +1,12 @@
+import sys
+sys.setrecursionlimit(2**15)
+
 from parser import parse
 from scanner import Int
 from unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
 import db
+from conslist import *
 
 print('version 0.1.4')
 
@@ -56,13 +60,15 @@ def interp(css, goals ,db=None):
     def unfold(g, gs):
       for cs in css:
         h, bs = cs
-        if not unifyWithEnv(relocate(h), g, vs, trail=trail, ocheck=False):
+        h=relocate(h)
+        if not unifyWithEnv(h, g, vs, trail=trail, ocheck=False):
           undo()
           continue  # FAILURE
         else:
           bs1 = relocate(bs)
           bsgs = gs
           for b1 in reversed(bs1) :
+            #b1=extractTerm(b1,vs) # slower!
             bsgs=(b1,bsgs)
           yield bsgs  # SUCCESS
 

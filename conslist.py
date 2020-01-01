@@ -1,6 +1,9 @@
 # immutable list emulation
 from unify import istuple
 
+def genList(n) :
+  return fromList(range(n))
+
 def fromList(Xs) :
   Rs=()
   for X in reversed(Xs) :

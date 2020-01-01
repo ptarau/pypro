@@ -1,17 +1,24 @@
 from natlog import *
 
+my_text = """
+    app () Ys Ys. 
+    app (X Xs) Ys (X Zs) : 
+        app Xs Ys Zs.
+
+    nrev () ().
+    nrev (X Xs) Zs : nrev Xs Ys, app Ys (X ()) Zs.
+
+    goal N L :
+      `genList N Xs,
+      nrev Xs Ys,
+      `llen Ys L. 
+    """
+
 # testing with string text
 def t1():
-  text = """
-      app () Ys Ys. 
-      app (X Xs) Ys (X Zs) : 
-          app Xs Ys Zs.
-
-      nrev () ().
-      nrev (X Xs) Zs : nrev Xs Ys, app Ys (X ()) Zs.
-      """
-  n=natlog(text=text)
+  n=natlog(text=my_text)
   n.query("nrev  (a (b (c (d ())))) R ?")
+  n.query("goal 10 L?")
 
 # testing with some .nat files
 
@@ -74,24 +81,34 @@ def go() :
 
   
 import timeit
-def time_of(f,x) :
+def time_of(f,x,times=1) :
  start_time = timeit.default_timer()
- res=f(x)
- print(x)
+ for i in range(times) :
+   res=f(x)
+   if i== times-1 :print(x)
  end_time=timeit.default_timer()
  print(x,'==>','res = ',res)
  print('time = ',end_time - start_time)
  print('')
  
 def bm() :
+  n = natlog(text=my_text)
+  n.query("goal 10 L?")
+  time_of(n.count, "goal 16 L?", times=256)
+  time_of(n.count, "goal 32 L?", times=64)
+  time_of(n.count, "goal 64 L?", times=16)
+  time_of(n.count, "goal 128 L?",times=4)
+  time_of(n.count, "goal 250 L?", times=1)
+  print('')
   n = natlog(file_name="natprogs/queens.nat")
-  print(n)
-  time_of(n.count,"goal Queens?")
+  time_of(n.count,"goal Queens?",times=9)
   time_of(n.count, "goal9 Queens?")
   time_of(n.count, "goal10 Queens?")
+  return # runs, but quite a bit longer
   time_of(n.count, "goal11 Queens?")
   time_of(n.count, "goal12 Queens?")
  
 if __name__=="__main__" :
   # db_test()
   py_test()
+  #bm()
