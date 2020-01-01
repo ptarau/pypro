@@ -1,4 +1,10 @@
-## A lightweight Prolog-like interpeter with a natural-language style syntax 
+## A lightweight Prolog-like interpreter with a natural-language style syntax 
+
+We closely follow Einstein's *"Everything should be made as simple as possible, but no simpler."*
+
+At this point, we rely on Python's natural error checking, without doing much to warn about syntactic or semantic errors. This can be added, but this is meant as an *executable specification* of an otherwise simple and natural logic language that we hereby name **Natlog**.
+
+###  **Natlog** : a succinct overview
 
 * Terms are represented as nested tuples.
 
@@ -6,7 +12,7 @@
 to turn terms into nested Python tuples.
 
 Surface syntax of facts, as read from strings, is just whitespace separated words 
-(with tuples paranthesized) and
+(with tuples parenthesized) and
 sentences ended with ```.``` or ```?```.
 Like in Prolog, variables are capitalized, unless quoted. Example programs are in folder ```natprogs```, for instance ```tc.nat```:
 
@@ -29,10 +35,22 @@ To query it, try:
 ``` python3 -i natlog.py
 
 >>> n=natlog(file_name="natprogs/tc.nat")
->>> n.query("tc Who is What ?")
+>>> n.query("tc Who is animal ?")
 ```
 
 It will return the transitive closure of the ```is``` relation.
+
+```
+GOAL PARSED: (('tc', 0, 'is', 'animal'),)
+ANSWER: ('tc', 'cat', 'is', 'animal')
+ANSWER: ('tc', 'tiger', 'is', 'animal')
+ANSWER: ('tc', 'mouse', 'is', 'animal')
+ANSWER: ('tc', 'feline', 'is', 'animal')
+ANSWER: ('tc', 'rodent', 'is', 'animal')
+ANSWER: ('tc', 'snake', 'is', 'animal')
+ANSWER: ('tc', 'mammal', 'is', 'animal')
+ANSWER: ('tc', 'reptile', 'is', 'animal')
+```
 
 List processing is also supported as in:
 
@@ -40,10 +58,22 @@ List processing is also supported as in:
 app () Ys Ys. 
 app (X Xs) Ys (X Zs) : app Xs Ys Zs.
 ```
-## A nested tuple store for unification-based tuple mining
 
-* An indexer in combination with the unification algorithm is used
-to retrieve ground terms matching terms containing logic variables.
+The interpreter supports a ```yield``` mechanism, similar to Python's own. Something like 
+``` ^ my_answer X ```
+resulting in my_answer X to be yield as an answer.
+
+The interpreter has also been extended to handle simple function and generator calls to Python  using the same prefix operator syntax:
+
+- ``` `f A B .. Z  R```, resulting in Python function ```f(A,B,C)``` being called and R unified with its result
+-  ``` ``f A B .. Z  R```, resulting in Python generator ```f(A,B,C)``` being called and R unified with its multiple yields, one a time
+- ``` ~R A B .. Z ``` for unifying  ``` ~ R A B .. Z ``` with matching facts in the term store
+- ``` f A B .. Z```, resulting in ```f(A,B,C,..,Z)``` being called with no result returned
+
+
+### A nested tuple store for unification-based tuple mining
+
+An indexer in combination with the unification algorithm is used to retrieve ground terms matching terms containing logic variables.
 
 Indexing is on all constants occurring in 
 ground facts placed in a database. 
@@ -90,3 +120,4 @@ Who is What?
 --> ('John', 'is', ('a', 'pilot'))
 
 ```
+

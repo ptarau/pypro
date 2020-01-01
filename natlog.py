@@ -1,9 +1,28 @@
 from parser import parse
+from scanner import Int
 from unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
 import db
 
-print('version 0.1.0')
+print('version 0.1.4')
+
+# turns Int to int in ground terms
+def to_python(t) :
+  if isinstance(t,Int) :
+    return t.val
+  if isinstance(t,tuple):
+    return tuple(map(to_python,t))
+  if isvar(t):
+    return None
+  return t
+
+# turns int to Int in ground terms
+def from_python(t) :
+     if isinstance(t, int):
+       return Int(t)
+     if isinstance(t,tuple):
+       return tuple(map(from_python, t))
+     return t
 
 # unfolds repeatedly; when done yields answer
 def interp(css, goals ,db=None):
@@ -58,10 +77,24 @@ def interp(css, goals ,db=None):
         yield from step(goals)  # SUCCESS
         undo()
 
-    # simple call to Python (e.g., print)
+    # simple call to Python (e.g., print, no return expected)
     def python_call(g,goals):
       f=eval(g[0])
-      f(*g[1:])
+      args=to_python(g[1:])
+      f(*args)
+
+    # function call to Python, last arg unified with result
+    def python_fun(g,goals) :
+      f = eval(g[0])
+      g = g[1:]
+      v = g[-1]
+      args = to_python(g[:-1])
+      r= f(*args)
+      r = from_python(r)
+      if not unifyWithEnv(v, r, vs, trail=trail, ocheck=False):
+        undo()
+      else :
+        yield from step(goals)
 
     # unifies with last arg yield from a generator
     # and first args, assumed ground, passed to it
@@ -69,8 +102,9 @@ def interp(css, goals ,db=None):
       gen=eval(g[0])
       g=g[1:]
       v=g[-1:]
-      args=g[:-1]
+      args=to_python(g[:-1])
       for r in gen(*args) :
+        r=from_python(r)
         yield r
         if not unifyWithEnv(v, r, vs, trail=trail, ocheck=False):
           undo()
@@ -81,16 +115,17 @@ def interp(css, goals ,db=None):
     def dispatch_call(op,g,goals) :
       if op == '~':  # matches against database of facts
         yield from db_call(g, goals)
-      elif op == '^':
+      elif op == '^': # yield g as an answer directly
         yield g
         yield from step(goals)
-        undo()
-      elif op == '`':
+      elif op == '`' :  # function call, last arg unified
+        yield from python_fun(g, goals)
+      elif op=="``":  # generator call, last arg unified
+        yield from gen_call(g, goals)
+      else : # op == '#',  simple call, no return
         python_call(g, goals)
         yield from step(goals)
-        undo()
-      else:  # ^^ generator call
-        yield from gen_call(g, goals)
+      undo()
 
     # step
     if goals == ():
@@ -101,7 +136,7 @@ def interp(css, goals ,db=None):
       g, goals = goals
       op=g[0]
 
-      if op in ["~","`","``","^"] :
+      if op in ["~","`","``","^","#"] :
          g = extractTerm(g[1:], vs)
          yield from dispatch_call(op,g,goals)
       else :
@@ -113,6 +148,7 @@ def interp(css, goals ,db=None):
   goal = goals[0]
   vs = list(vars_of(goal))
   yield from step((goal, ()))
+
 
 # encapsulates reading code, guery and REPL
 class natlog:
