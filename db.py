@@ -14,6 +14,12 @@ def add_clause(index,css,h) :
   for c in const_of(h) :
     index[c].add(i)
 
+def tuplify(t) :
+  if isinstance(t,list) :
+    return tuple(map(tuplify,t))
+  else:
+    return t
+
 class db:
   def __init__(self):
     self.index=make_index() # content --> int index
@@ -30,11 +36,10 @@ class db:
     with open(fname,'r') as f:
       ts=json.load(f)
     for t in ts :
-      self.add_clause(tuple(t))
+      self.add_clause(tuplify(t))
 
   # loads ground facts .nat or .json files
   def load(self,fname):
-    print(fname)
     if len(fname) > 4 and fname[-4:]=='.nat' :
       with open(fname,'r') as f:
         self.digest(f.read())
@@ -81,9 +86,24 @@ class db:
         for rs in self.match_of(qs) :
           yield rs
 
+  # simple search based on content
+  def about(self, query):
+    qss = parse(query, ground=True)
+    for qs in qss:
+      qs=tuple(qs)
+      for i in self.ground_match_of(qs):
+        yield self.css[i]
+
+  def ask_about(self, query):
+    print('QUERY:',query)
+    for r in self.about(query):
+      print('-->', r)
+    print('')
+
+
   # queries the db directly with a text query
   def ask(self, query):
-    print(query)
+    print('QUERY:',query)
     for r in self.search(query):
       print('-->', r)
     print('')
@@ -154,20 +174,23 @@ def dtestf():
   d = db()
   d.load(fname)
   print(d)
-  print('loaded')
+  print('LOADED:',fname)
   d.ask("Who is mammal?")
 
 # db from a json file
 def dtestj():
   fname='natprogs/db.json'
   d = db()
-  d.ingest(fname)
+  d.load(fname)
   #print(d)
-  print('loaded')
-  #d.ask("A B C?")
+  print('LOADED:',fname)
+  print("")
+  d.ask("S (X Y Z U)?")
+  query="reusable launch vehicle?"
+  d.ask_about(query)
 
 
 if __name__=='__main__' :
-  dtest()
+  dtestj()
 
 
