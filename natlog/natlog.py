@@ -1,12 +1,13 @@
 import sys
 sys.setrecursionlimit(2**15)
 
-from parser import parse
-from scanner import Int
-from unify import unifyWithEnv, extractTerm, \
+from .scanner import Int
+from .parser import parse
+from .db import db
+from .unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
-import db
-from conslist import *
+from .db import db
+from .conslist import *
 
 print('version 0.1.4')
 
@@ -164,7 +165,7 @@ class natlog:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      self.db=db.db()
+      self.db= db.db()
       self.db.load(db_name)
     else:
       self.db=None

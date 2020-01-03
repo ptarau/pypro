@@ -1,5 +1,5 @@
 # immutable list emulation
-from unify import istuple
+from .unify import istuple
 
 def genList(n) :
   return fromList(range(n))

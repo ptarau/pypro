@@ -1,6 +1,6 @@
-from parser import parse
-from unify import unifyWithEnv, extractTerm, \
-  isvar, istuple, makeEnv, extendTo, vars_of
+from natlog.parser import parse
+from natlog.unify import unifyWithEnv, extractTerm, \
+  isvar, istuple, extendTo, vars_of
 
 #print('ver 0.06')
 

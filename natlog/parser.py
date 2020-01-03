@@ -1,4 +1,4 @@
-import scanner
+from .scanner import scanner
 
 trace=False
 
@@ -80,7 +80,7 @@ def to_clause(xs) :
 
 # main exported parser + scanner
 def parse(text,ground=False,rule=False) :
-  s=scanner.scanner(text,ground=ground)
+  s= scanner(text, ground=ground)
   for ws in s.run() :
     ws = ("(",) + ws + (")",)
     p=parser(ws)

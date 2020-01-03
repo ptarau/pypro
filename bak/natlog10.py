@@ -1,7 +1,7 @@
-from parser import parse
-from unify import unifyWithEnv, extractTerm, \
-  isvar, istuple, makeEnv, extendTo, vars_of
-import db
+from natlog.parser import parse
+from natlog.unify import unifyWithEnv, extractTerm, \
+  isvar, istuple, extendTo, vars_of
+from natlog.natlog import db
 
 print('ver 0.07')
 
@@ -79,9 +79,9 @@ class natlog:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      self.db=db.db()
+      self.db= db.db()
       self.db.load(db_name)
-      print('DB',db)
+      print('DB', db)
     else:
       self.db=None
 

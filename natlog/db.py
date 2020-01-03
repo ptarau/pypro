@@ -1,9 +1,9 @@
 from collections import defaultdict
 
-from unify import unifyToEnv, unifyToTerm, unifyWithEnv, \
-     isvar,istuple,vars_of,const_of, has_vars
-from parser import parse
-from scanner import Int
+from .unify import unifyToTerm, unifyWithEnv, \
+  vars_of,const_of
+from .parser import parse
+from .scanner import Int
 
 def make_index() :
   return defaultdict(set)

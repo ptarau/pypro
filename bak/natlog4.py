@@ -1,7 +1,4 @@
-from parser import parse
-from unify import unifyWithEnv,extractTerm, \
-                  isvar,istuple,makeEnv
-from conslist import *
+from natlog.natlog import *
 
 print('ver 0.04')
 
