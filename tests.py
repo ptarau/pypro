@@ -118,9 +118,90 @@ def prof() :
   p.runcall(fun)
   p.print_stats(sort=1)
 
+
+# tests
+
+c1=('a',Int(1),'car','a')
+c2=('a',Int(2),'horse','aa')
+c3=('b',Int(1),'horse','b')
+c4=('b',Int(2),'car','bb')
+
+g1=('a',0,1,2)
+g2=(0,1,'car',2)
+g3=(0,1,2,0)
+
+def dtest1() :
+  print(c1,'<-const:',list(const_of(c1)))
+  print(c3,'<-vars:',list(vars_of(c3)))
+  d=db()
+  for cs in [c1,c2,c3,c4]:
+    d.add_clause(cs)
+  print('index',d.index)
+  print('css',d.css)
+  print('Gmatch', g1, list(d.ground_match_of(g1)))
+  print('Vmatch',g1,list(d.match_of(g1)))
+  print('Gmatch', g2, list(d.ground_match_of(g2)))
+  print('Vmatch',g2,list(d.match_of(g2)))
+  print('Gmatch', g3, list(d.ground_match_of(g3)))
+  print('Vmatch', g3, list(d.match_of(g3)))
+
+# bb built form text
+def dtest() :
+  text='''
+   John has (a car).
+   Mary has (a bike).
+   Mary is (a student).
+   John is (a pilot).
+   '''
+  print(text)
+  d = db()
+  d.digest(text)
+  print(d)
+  print('')
+  query = "Who has (a What)?"
+  d.ask(query)
+
+  query = "Who is (a pilot)?"
+  d.ask(query)
+
+  query = "'Mary' is What?"
+  d.ask(query)
+
+  query = "'John' is (a What)?"
+  d.ask(query)
+
+  query = "Who is What?"
+  d.ask(query)
+
+# db from a .nat file
+def dtestf():
+  fname='natprogs/db.nat'
+  d = db()
+  d.load(fname)
+  print(d)
+  print('LOADED:',fname)
+  d.ask("Who is mammal?")
+
+# db from a json file
+def dtestj():
+  fname='natprogs/db'
+  jname=fname+'.json'
+  nname=fname+'.nat'
+  d=db()
+  d.load(nname)
+  d.save(jname)
+  d = db()
+  d.load(jname)
+  #print(d)
+  print('LOADED:',jname)
+  print("")
+  query="Who is What?"
+  d.ask(query)
+
 if __name__=="__main__" :
   # db_test()
   #py_test()
   #bm()
   #prof()
+  dtestj()
   t2()
