@@ -165,7 +165,7 @@ class natlog:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      self.db= db.db()
+      self.db= db()
       self.db.load(db_name)
     else:
       self.db=None

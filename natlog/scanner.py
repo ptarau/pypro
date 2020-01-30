@@ -1,15 +1,18 @@
 import re
 
+# wrapper around int to be used in data fields
+# as actual int works as the type of variables
+# for simplicity and efficiency
 class Int :
   def __init__(self,val):
-    if not isinstance(val,int) :
-      val=int(val)
-    self.val=val
+    self.val=int(val)
 
   def __eq__(self, other):
     if isinstance(other,Int) :
       return self.val == other.val
     return False
+
+  def __hash__(self): return hash(self.val)
 
   def __repr__(self):
     return "Int("+str(self.val)+")"

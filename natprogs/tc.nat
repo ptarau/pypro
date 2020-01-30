@@ -6,6 +6,8 @@ rodent is mammal.
 snake is reptile.
 mammal is animal.
 reptile is animal.
+42 is number.
+-42 is number.
 
 tc A Rel C : A Rel B, tc1 B Rel C.
 
