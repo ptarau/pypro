@@ -145,7 +145,7 @@ def dtest1() :
   print('Gmatch', g3, list(d.ground_match_of(g3)))
   print('Vmatch', g3, list(d.match_of(g3)))
 
-# bb built form text
+# db built form text
 def dtest() :
   text='''
    John has (a car).

@@ -18,6 +18,10 @@ def add_clause(index,css,h) :
 def tuplify(t) :
   if isinstance(t,list) :
     return tuple(map(tuplify,t))
+  if isinstance(t,tuple) :
+    return tuple(map(tuplify,t))
+  elif isinstance(t,int) :
+    return Int(t)
   else:
     return t
 
@@ -36,7 +40,10 @@ class db:
     with open(fname,'r') as f:
       ts=json.load(f)
     for t in ts :
-      self.add_clause(tuplify(t))
+      self.add_db_clause(t)
+
+  def add_db_clause(self,t):
+    self.add_clause(tuplify(t))
 
   # loads ground facts .nat or .json files
   def load(self,fname):

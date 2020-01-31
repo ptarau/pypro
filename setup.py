@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
 with open("README.md","r") as f:
     long_description = f.read()
 
-version = "0.1.7"
+version = "0.1.8"
 setup(name='natlog',
   version=version,
   description='Prolog-like interpreter and tuple store',
