@@ -9,8 +9,6 @@ from .unify import unifyWithEnv, extractTerm, \
 from .db import db
 from .conslist import *
 
-print('version 0.1.4')
-
 # turns Int to int in ground terms
 def to_python(t) :
   if isinstance(t,Int) :
