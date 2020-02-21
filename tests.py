@@ -1,4 +1,5 @@
 from natlog.natlog import *
+from natlog.db import *
 
 my_text = """
     app () Ys Ys. 
