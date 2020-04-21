@@ -9,8 +9,11 @@ from .unify import unifyWithEnv, extractTerm, \
 from .db import db
 from .conslist import *
 
-# turns Int to int in ground terms
+
 def to_python(t) :
+  '''
+  turns Int to int in ground terms
+  '''
   if isinstance(t,Int) :
     return t.val
   if isinstance(t,tuple):
@@ -19,8 +22,11 @@ def to_python(t) :
     return None
   return t
 
-# turns int to Int in ground terms
+
 def from_python(t) :
+     '''
+     turns int to Int in ground terms
+     '''
      if isinstance(t, int):
        return Int(t)
      if isinstance(t,tuple):
@@ -30,8 +36,11 @@ def from_python(t) :
 # unfolds repeatedly; when done yields answer
 def interp(css, goals ,db=None):
 
-  # reduces goals and yields answer when no more goals
+
   def step(goals):
+    '''
+    reduces goals and yields answer when no more goals
+    '''
 
     # undoes bindings of variables contained in the trail
     def undo():
@@ -88,8 +97,11 @@ def interp(css, goals ,db=None):
       args=to_python(g[1:])
       f(*args)
 
-    # function call to Python, last arg unified with result
+
     def python_fun(g,goals) :
+      '''
+      function call to Python, last arg unified with result
+      '''
       f = eval(g[0])
       g = g[1:]
       v = g[-1]
@@ -118,6 +130,9 @@ def interp(css, goals ,db=None):
           undo()
 
     def dispatch_call(op,g,goals) :
+      '''
+      dispatches several types of calls to Python
+      '''
       if op == '~':  # matches against database of facts
         yield from db_call(g, goals)
       elif op == '^': # yield g as an answer directly
@@ -157,7 +172,7 @@ def interp(css, goals ,db=None):
 
 # encapsulates reading code, guery and REPL
 class natlog:
-  # builds Natlog machine from text, rule file, ground facts tuple store
+  ''' builds Natlog machine from text, rule file, ground facts tuple store'''
   def __init__(self, text=None, file_name=None, db_name=None):
     if file_name:
       text = self.consult(file_name)
@@ -167,20 +182,29 @@ class natlog:
       self.db.load(db_name)
     else:
       self.db=None
-  # answer generator for given quest
+
   def solve(self, quest):
+    '''
+     answer generator for given question
+    '''
     goals = tuple(parse(quest, ground=False, rule=False))
     yield from interp(self.css, goals, db=self.db)
 
-  # answer counter
+
   def count(self, quest):
+    '''
+    answer counter
+    '''
     c = 0
     for a in self.solve(quest):
       c += 1
     return c
 
-  # show answers for given query
+
   def query(self, quest):
+    '''
+    show answers for given query
+    '''
     if self.db : db=self.db
     else : db=None
     goals = tuple(parse(quest, ground=False, rule=False))
@@ -189,14 +213,20 @@ class natlog:
       print('ANSWER:', answer)
     print('')
 
-  # consults rule file
+
   def consult(self, file_name):
+    '''
+    consults rule file
+    '''
     with open(file_name, 'r') as f:
       text = f.read()
       return text
 
-  # read-eval-print-loop
+
   def repl(self):
+    '''
+    read-eval-print-loop
+    '''
     print("Type ENTER to quit.")
     while (True):
       q = input('?- ')
