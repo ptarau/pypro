@@ -56,6 +56,11 @@ def t7() :
   print('Enter some queries!')
   n.repl()
 
+def loop():
+  n = natlog(file_name="natprogs/loop.nat")
+  print(n)
+  n.query("goal X?")
+
 def db_test() :
   nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
   print('RULES')
@@ -205,4 +210,5 @@ if __name__=="__main__" :
   #bm()
   #prof()
   dtestj()
-  t2()
+  #t5()
+  pass

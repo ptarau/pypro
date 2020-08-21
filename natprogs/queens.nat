@@ -11,11 +11,11 @@ gen_places (_A Qs)  (_B Ps)  : gen_places Qs Ps.
 
 qs Qs Ps : gen_places Qs Ps , place_queens Qs Ps _A _B.
 
-goal Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 ()))))))))  Qs.
+goal8 Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 ()))))))))  Qs.
 
 goal9 Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 (9 ())))))))))  Qs.
 
-goal10 Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 (9 (10 ()))))))))))  Qs.
+goal Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 (9 (10 ()))))))))))  Qs.
 
 goal11 Qs : qs (1 (2 (3 (4 (5 (6 (7 (8 (9 (10 (11 ())))))))))))  Qs.
 
