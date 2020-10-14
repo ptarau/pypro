@@ -107,10 +107,10 @@ def bm() :
   #time_of(n.count, "goal 250 L?", times=1)
   print('')
   n = natlog(file_name="natprogs/queens.nat")
-  time_of(n.count,"goal Queens?",times=9)
+  time_of(n.count,"goal8 Queens?",times=9)
   time_of(n.count, "goal9 Queens?")
   time_of(n.count, "goal10 Queens?")
-  return # runs, but quite a bit longer
+  #return # runs, but quite a bit longer
   time_of(n.count, "goal11 Queens?")
   time_of(n.count, "goal12 Queens?")
 

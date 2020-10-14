@@ -1,27 +1,14 @@
-queens(N, Queens) :-
-    length(Queens, N),
-	board(Queens, Board, 0, N, _, _),
-	queens(Board, 0, Queens).
+goal(Ps):-qs([1,2,3,4,5,6,7,8,9,10,11,12],Ps).
 
-board([], [], N, N, _, _).
-board([_|Queens], [Col-Vars|Board], Col0, N, [_|VR], VC) :-
-	Col is Col0+1,
-	functor(Vars, f, N),
-	constraints(N, Vars, VR, VC),
-	board(Queens, Board, Col, N, VR, [_|VC]).
+qs(Qs,Ps):-gen_places(Qs,Ps),place_queens(Qs,Ps,_,_).
 
-constraints(0, _, _, _) :- !.
-constraints(N, Row, [R|Rs], [C|Cs]) :-
-	arg(N, Row, R-C),
-	M is N-1,
-	constraints(M, Row, Rs, Cs).
+gen_places([],[]).
+gen_places([_|Qs],[_|Ps]):-gen_places(Qs,Ps).
 
-queens([], _, []).
-queens([C|Cs], Row0, [Col|Solution]) :-
-	Row is Row0+1,
-	select(Col-Vars, [C|Cs], Board),
-	arg(Row, Vars, Row-Row),
-	queens(Board, Row, Solution).
+place_queen(I,[I|_],[I|_],[I|_]).
+place_queen(I,[_|Cs],[_|Us],[_|Ds]):-place_queen(I,Cs,Us,Ds).
 
-  
-bm(N):-queens(N,_),fail;true.
+place_queens([],_,_,_).
+place_queens([I|Is],Cs,Us,[_|Ds]):-
+  place_queens(Is,Cs,[_|Us],Ds),
+  place_queen(I,Cs,Us,Ds).
