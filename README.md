@@ -84,9 +84,9 @@ for a match.
 
 To try it out, do:
 
-```python3 -i db.py```
+```python3 -i tests.py```
 
-`````>>> dbtest()`````
+`````>>> dtest()`````
 
 It gives, after digesting a text and then querying it:
 

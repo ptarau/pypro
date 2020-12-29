@@ -118,16 +118,13 @@ def interp(css, goals ,db=None):
     def gen_call(g, goals) :
       gen=eval(g[0])
       g=g[1:]
-      v=g[-1:]
+      v=g[-1]
       args=to_python(g[:-1])
       for r in gen(*args) :
-        r=from_python(r)
-        yield r
-        if not unifyWithEnv(v, r, vs, trail=trail, ocheck=False):
-          undo()
-        else :
+        r=from_python(r)    
+        if unifyWithEnv(v, r, vs, trail=trail, ocheck=False):
           yield from step(goals)
-          undo()
+        undo()
 
     def dispatch_call(op,g,goals) :
       '''

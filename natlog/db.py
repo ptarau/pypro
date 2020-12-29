@@ -1,5 +1,6 @@
 from collections import defaultdict
 import json
+import csv
 
 from .unify import unifyToTerm, unifyWithEnv, \
   vars_of,const_of
@@ -42,6 +43,15 @@ class db:
     for t in ts :
       self.add_db_clause(t)
 
+  def load_csv(self,fname,delimiter=','):
+    with open(fname) as f:
+      wss = csv.reader(f,delimiter=delimiter)
+      for ws in wss:
+        self.add_db_clause(ws)
+
+  def load_tsv(self,fname):
+    self.load_csv(fname,delimiter='\t')
+
   def add_db_clause(self,t):
     self.add_clause(tuplify(t))
 
@@ -58,7 +68,7 @@ class db:
       json.dump(self.css,g)
 
   # adds a clause and indexes it for all constants
-  # recurevely occurring in it, in any subtuple
+  # recursively occurring in it, in any subtuple
   def add_clause(self,cs):
     add_clause(self.index,self.css,cs)
 

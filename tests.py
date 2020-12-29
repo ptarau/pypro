@@ -206,9 +206,9 @@ def dtestj():
 
 if __name__=="__main__" :
   # db_test()
-  #py_test()
+  py_test()
   #bm()
   #prof()
-  dtestj()
+  #dtestj()
   #t5()
   pass
