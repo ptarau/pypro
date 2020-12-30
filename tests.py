@@ -1,5 +1,6 @@
 from natlog.natlog import *
 from natlog.db import *
+from natlog.natlearn import *
 
 my_text = """
     app () Ys Ys. 
@@ -204,11 +205,38 @@ def dtestj():
   query="Who is What?"
   d.ask(query)
 
+
+def qtest():
+  rels=tsv2db()
+  for m in rels.match_of((0,1,'animal')):
+    print(m)
+  print('')
+  code='''
+      goal X is U : ~ X is U .
+    '''
+  logic_engine=natlog(text=code)
+  logic_engine.db=rels
+
+  logic_engine.query("goal X is U?")
+
+
+def nltest() :
+  nl=natlearner()
+  nl.train()
+  print(nl.ask(nl.rels.css))
+  qss=[['bee','is',nl.mask]]
+  qss = [[nl.mask, 'is', 'insect']]  
+  print(nl.ask(qss))
+  pass
+
+
 if __name__=="__main__" :
   # db_test()
-  py_test()
+  #py_test()
   #bm()
   #prof()
   #dtestj()
   #t5()
+  #qtest()
+  nltest()
   pass
