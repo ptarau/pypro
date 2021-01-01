@@ -60,6 +60,10 @@ class db:
     if len(fname) > 4 and fname[-4:]=='.nat' :
       with open(fname,'r') as f:
         self.digest(f.read())
+    elif len(fname) > 4 and fname[-4:] == '.tsv':
+      self.load_tsv(fname)
+    elif len(fname) > 4 and fname[-4:] == '.csv':
+      self.load_csv(fname)
     else :
       self.load_json(fname)
 

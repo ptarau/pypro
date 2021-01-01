@@ -7,6 +7,7 @@ from .db import db
 from .unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
 from .db import db
+from .ndb import ndb
 from .conslist import *
 
 
@@ -33,8 +34,14 @@ def from_python(t) :
        return tuple(map(from_python, t))
      return t
 
+def generator_caller(*args):
+  print('$$$$',args)
+  f=str(args[0])
+  xs=",".join(map(str,args[1:]))
+  yield from eval(f+"("+xs+")")
+
 # unfolds repeatedly; when done yields answer
-def interp(css, goals ,db=None):
+def interp(css, goals , transformer, db=None):
 
 
   def step(goals):
@@ -115,8 +122,9 @@ def interp(css, goals ,db=None):
 
     # unifies with last arg yield from a generator
     # and first args, assumed ground, passed to it
-    def gen_call(g, goals) :
-      gen=eval(g[0])
+    def gen_call(g,goals) :
+      gen=transformer(g[0])
+      #gen=eval(g0)
       g=g[1:]
       v=g[-1]
       args=to_python(g[:-1])
@@ -170,22 +178,35 @@ def interp(css, goals ,db=None):
 # encapsulates reading code, guery and REPL
 class natlog:
   ''' builds Natlog machine from text, rule file, ground facts tuple store'''
-  def __init__(self, text=None, file_name=None, db_name=None):
+  def __init__(self, text=None, file_name=None, db_name=None, db_type=0):
     if file_name:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      self.db= db()
+      if db_type==0 :
+        self.db= db()
+      else :
+        self.db=ndb()
       self.db.load(db_name)
     else:
       self.db=None
+
+  def generator_transformer(self):
+    print("!!!!!!HERE")
+    def eval_it(x) :
+      print('EVAL',x,type(x))
+      f = eval(x)
+      print('AFTER EVAL', f, type(f))
+      return f
+
+    return eval_it
 
   def solve(self, quest):
     '''
      answer generator for given question
     '''
     goals = tuple(parse(quest, ground=False, rule=False))
-    yield from interp(self.css, goals, db=self.db)
+    yield from interp(self.css, goals, self.generator_transformer(), db=self.db)
 
 
   def count(self, quest):
@@ -206,7 +227,7 @@ class natlog:
     else : db=None
     goals = tuple(parse(quest, ground=False, rule=False))
     print('GOAL PARSED:', goals)
-    for answer in interp(self.css, goals, db=db):
+    for answer in interp(self.css, goals, self.generator_transformer(),db=db):
       print('ANSWER:', answer)
     print('')
 

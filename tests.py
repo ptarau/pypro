@@ -70,13 +70,20 @@ def db_test() :
   print(nd.db)
   nd.query("tc Who is_a animal ?")
 
+def ndb_test() :
+  nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat",db_type=1)
+  print('RULES')
+  print(nd)
+  print('DB FACTS')
+  print(nd.db)
+  nd.query("tc Who is_a animal ?")
+
 
 def py_test() :
   nd = natlog(file_name="natprogs/py_call.nat")
   print('RULES')
-  print(nd)
+  #print(nd)
   nd.query("goal X?")
-
 
 def go() :
   t1()
@@ -219,14 +226,21 @@ def qtest():
 
   logic_engine.query("goal X is U?")
 
-
+'''
 def nltest() :
   nl=natlearner()
   nl.train()
-  print(nl.ask(nl.rels.css))
+  #print(nl.ask(nl.rels.css))
   qss=[['bee','is',nl.mask]]
-  qss = [[nl.mask, 'is', 'insect']]  
+  qss = [[nl.mask, 'is', 'insect']]
   print(nl.ask(qss))
+  pass
+'''
+
+def multitest() :
+  nl=multilearner()
+  qs=('Who','can','What')
+  for A in nl.ask(qs) : print('ANSWER:',A)
   pass
 
 
@@ -238,5 +252,6 @@ if __name__=="__main__" :
   #dtestj()
   #t5()
   #qtest()
-  nltest()
+  #multitest()
+  ndb_test()
   pass
