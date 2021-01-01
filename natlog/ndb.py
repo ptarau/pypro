@@ -6,14 +6,14 @@ from sklearn.neural_network import MLPClassifier
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 
-# it might work for larger databases
+# it might work better for larger databases
 def_learner=MLPClassifier(
   hidden_layer_sizes=(64,16,64),
   verbose=True,
   activation='logistic',
   max_iter=10000)
 
-def_learner=RandomForestClassifier(random_state=1234)
+#def_learner=RandomForestClassifier(random_state=1234)
 
 
 def wss2hotX(wss,mask) :
@@ -47,18 +47,18 @@ def bits2seq(xs,bss) :
 class ndb(db) :
 
   def load(self,fname,learner=def_learner):
-    print("load OVERRRIDE")
+    #print("load OVERRRIDE")
     super().load(fname)
     l = len(self.css)
     self.learner=learner
 
     ixbits=dict((x,set2bits(l,xs)) for (x,xs) in self.index.items())
     codes=seq2bits(self.index)
-    print('DIMS',len(ixbits),len(codes))
+    #print('DIMS',len(ixbits),len(codes))
     X=np.array(codes)
     y=np.array(list(ixbits.values()))
-    print(X)
-    print('\n',y)
+    print('X:\n',X)
+    print('\ny:\n',y,'\n')
     self.X,self.y,self.codes,self.ixbits=X,y,codes,ixbits
     self.learner.fit(self.X,self.y)
 

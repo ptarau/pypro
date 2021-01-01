@@ -34,12 +34,6 @@ def from_python(t) :
        return tuple(map(from_python, t))
      return t
 
-def generator_caller(*args):
-  print('$$$$',args)
-  f=str(args[0])
-  xs=",".join(map(str,args[1:]))
-  yield from eval(f+"("+xs+")")
-
 # unfolds repeatedly; when done yields answer
 def interp(css, goals , transformer, db=None):
 
@@ -192,11 +186,13 @@ class natlog:
       self.db=None
 
   def generator_transformer(self):
-    print("!!!!!!HERE")
+    """
+    overridable opportunity to refine eval
+    e.g., to handle out of scope calls or
+    enforce only 'safe' functions to be called
+    """
     def eval_it(x) :
-      print('EVAL',x,type(x))
       f = eval(x)
-      print('AFTER EVAL', f, type(f))
       return f
 
     return eval_it
