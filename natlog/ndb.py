@@ -13,7 +13,7 @@ def_learner=MLPClassifier(
   activation='logistic',
   max_iter=10000)
 
-#def_learner=RandomForestClassifier(random_state=1234)
+def_learner=RandomForestClassifier(random_state=1234)
 
 
 def wss2hotX(wss,mask) :

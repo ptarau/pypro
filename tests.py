@@ -78,6 +78,34 @@ def ndb_test() :
   nd.query("tc Who is_a animal ?")
 
 
+def db_chem() :
+  nd = natlog(
+    file_name="natprogs/elements.nat",
+    db_name="natprogs/elements.tsv",
+    db_type=0
+  )
+  print('RULES')
+  print(nd)
+  print('DB FACTS')
+  print(nd.db)
+  nd.query("an_el Num Element ?")
+  nd.query("gases Num Element ?")
+
+
+def ndb_chem() :
+  nd = natlog(
+    file_name="natprogs/elements.nat",
+    db_name="natprogs/elements.tsv",
+    db_type=1
+  )
+  print('RULES')
+  print(nd)
+  print('DB FACTS')
+  print(nd.db)
+  nd.query("an_el Num Element ?")
+  nd.query("gases Num Element ?")
+
+
 def py_test() :
   nd = natlog(file_name="natprogs/py_call.nat")
   print('RULES')
@@ -219,5 +247,7 @@ if __name__=="__main__" :
   #prof()
   #dtestj()
   #t5()
-  ndb_test()
+  #ndb_test()
+  ndb_chem()
+
   pass
