@@ -8,77 +8,76 @@ from sklearn.preprocessing import OneHotEncoder
 
 # it might work better for larger databases
 def_learner=MLPClassifier(
-  hidden_layer_sizes=(64,16,64),
-  verbose=True,
-  activation='logistic',
-  max_iter=10000)
+  hidden_layer_sizes=(16,16,16),
+  random_state=1234,
+  verbose=1,
+  activation='tanh',
+  max_iter=10000
+)
 
-def_learner=RandomForestClassifier(random_state=1234)
-
-
-def wss2hotX(wss,mask) :
-  mask=[mask]*len(wss[0])
-  X=np.array(wss)
-  Xplus=np.array(wss+[mask])
-  print(Xplus.shape)
-  enc=OneHotEncoder(handle_unknown='ignore')
-  enc.fit(X)
-  hotX=enc.transform(X).toarray()
-  return enc,X,hotX
+#def_learner=RandomForestClassifier(random_state=1234)
 
 def set2bits(n,xs) :
-  return tuple(1 if x in xs else 0  for x in range(n))
+  return [1 if x in xs else 0  for x in range(n)]
 
 def bits2set(bs):
-  return (i for i,b in enumerate(bs) if b==1)
+  return [i for i,b in enumerate(bs) if b==1]
 
 def seq2nums(xs) :
-  return dict((x,i) for (i,x) in enumerate(xs))
+  d=dict()
+  i=0
+  for x in xs :
+    if x not in d:
+      d[x]=i
+      i+=1
+  return d
 
-def seq2bits(xs) :
-  d=seq2nums(xs)
-  l=len(xs)
-  return tuple(set2bits(l,[d[x]]) for x in xs)
+def num2bits(l,n) : # binary encoding
+  #return [n] # no encoding
+  blen=len(bin(l)[2:])
+  cs=bin(n)[2:]
+  r=blen-len(cs)
+  bs=r*[0]+[int(c) for c in cs]
+  #return bs # binary encoding
+  return set2bits(l, [n]) # 1hot encoding
 
-def bits2seq(xs,bss) :
-  nss = map(bits2set,bss)
-  return [xs[i] for ns in nss for i in ns]
 
 class ndb(db) :
 
   def load(self,fname,learner=def_learner):
-    #print("load OVERRRIDE")
     super().load(fname)
-    l = len(self.css)
-    self.learner=learner
 
-    ixbits=dict((x,set2bits(l,xs)) for (x,xs) in self.index.items())
-    codes=seq2bits(self.index)
-    #print('DIMS',len(ixbits),len(codes))
-    X=np.array(codes)
-    y=np.array(list(ixbits.values()))
-    print('X:\n',X)
-    print('\ny:\n',y,'\n')
-    self.X,self.y,self.codes,self.ixbits=X,y,codes,ixbits
-    self.learner.fit(self.X,self.y)
+    db_const_dict = seq2nums(self.index)
+    db_const_count=len(db_const_dict)
+    bss=[]
+    for n in db_const_dict.values() :
+      bs=num2bits(db_const_count,n)
+      bss.append(bs)
+    X=np.array(bss)
+    #X=np.eye(len(db_const_dict),dtype=int)
 
+    val_count = len(self.css)
+    y = np.array([set2bits(val_count, xs) for xs in self.index.values()])
+    print('X:',X.shape,'\n',X)
+    print('\ny:',y.shape,'\n',y,'\n')
+    learner.fit(X,y)
+    self.learner,self.db_const_dict,self.y = learner,db_const_dict,y
 
-  def ground_match_of(self,h):
-    #print("ground_match_of OVERRRIDE")
-    names_nums = seq2nums(self.index)
-    consts = const_of(h)
-    nums = [names_nums[c] for c in consts if c in names_nums]
-    # print('NUMS',nums)
-    l = len(names_nums)
+  def ground_match_of(self,query_tuple):
+
+    query_consts = const_of(query_tuple)
+    query_consts_nums = \
+      [self.db_const_dict[c] for c in query_consts if c in self.db_const_dict]
+    db_const_count = len(self.db_const_dict)
     rs = np.array([[1] * self.y.shape[1]])
-    for qn in nums:
-      qa = np.array([[q for q in set2bits(l, [qn])]])
+    for qn in query_consts_nums:
+      qa = np.array([[q for q in num2bits(db_const_count, qn)]])
       r = self.learner.predict(qa)
+      #print('PROBS',self.learner.predict_proba(qa))
       rs = np.bitwise_and(rs, r)
-    # print('RRR',rs[0])
-    vals = list(rs[0])
-    vals = list(bits2set(vals))
-    #print('VALS:', vals)
-    return vals
+    matches = list(rs[0])
+    matches = bits2set(matches)
+    #print('matches:', matches)
+    return matches
 
 
