@@ -248,7 +248,7 @@ if __name__=="__main__" :
   #prof()
   #dtestj()
   #t5()
-  #ndb_test()
-  ndb_chem()
+  ndb_test() # tests transitive closure with learner
+  #ndb_chem() # tests query about chemical elements
 
   pass
