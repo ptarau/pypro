@@ -242,7 +242,10 @@ def dtestj():
 
 
 if __name__=="__main__" :
-  # db_test()
+  '''
+  uncomment any
+  '''
+  #db_test()
   #py_test()
   #bm()
   #prof()
