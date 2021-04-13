@@ -47,7 +47,7 @@ class ndb(db) :
     overrides loading mechanism to fit learner
     '''
     super().load(fname)
-    db_const_dict = seq2nums(self.index) # assumeing dict ordered
+    db_const_dict = seq2nums(self.index) # assuming dict ordered
     X=np.eye(len(db_const_dict),dtype=int)
     val_count = len(self.css)
     y = np.array([set2bits(val_count, xs) for xs in self.index.values()])
