@@ -128,7 +128,7 @@ As an extension to the nested tuple store the neuro-symbolic tuple database uses
 #### Example of usage (see more at https://github.com/ptarau/pypro/blob/master/tests.py )
 ```
 def ndb_test() :
-  nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat",db_type=1)
+  nd = neural_natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
   print('RULES')
   print(nd)
   print('DB FACTS')

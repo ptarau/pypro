@@ -1,6 +1,7 @@
 from natlog.natlog import *
 from natlog.db import *
 from natlog.ndb import *
+from natlog.neural_natlog import *
 
 my_text = """
     app () Ys Ys. 
@@ -71,19 +72,17 @@ def db_test() :
   nd.query("tc Who is_a animal ?")
 
 def ndb_test() :
-  nd = natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat",db_type=1)
+  nd = neural_natlog(file_name="natprogs/dbtc.nat",db_name="natprogs/db.nat")
   print('RULES')
   print(nd)
   print('DB FACTS')
   print(nd.db)
   nd.query("tc Who is_a animal ?")
 
-
 def db_chem() :
   nd = natlog(
     file_name="natprogs/elements.nat",
-    db_name="natprogs/elements.tsv",
-    db_type=0
+    db_name="natprogs/elements.tsv"
   )
   print('RULES')
   print(nd)
@@ -92,12 +91,10 @@ def db_chem() :
   nd.query("an_el Num Element ?")
   nd.query("gases Num Element ?")
 
-
 def ndb_chem() :
-  nd = natlog(
+  nd = neural_natlog(
     file_name="natprogs/elements.nat",
-    db_name="natprogs/elements.tsv",
-    db_type=1
+    db_name="natprogs/elements.tsv"
   )
   print('RULES')
   print(nd)
@@ -122,43 +119,6 @@ def go() :
   t6()
 
   
-import timeit
-def time_of(f,x,times=1) :
- start_time = timeit.default_timer()
- for i in range(times) :
-   res=f(x)
-   if i== times-1 :print(x)
- end_time=timeit.default_timer()
- print(x,'==>','res = ',res)
- print('time = ',end_time - start_time)
- print('')
- 
-def bm() :
-  n = natlog(text=my_text)
-  n.query("goal 10 L?")
-  time_of(n.count, "goal 16 L?", times=256)
-  time_of(n.count, "goal 32 L?", times=64)
-  time_of(n.count, "goal 64 L?", times=16)
-  time_of(n.count, "goal 128 L?",times=4)
-  #time_of(n.count, "goal 250 L?", times=1)
-  print('')
-  n = natlog(file_name="natprogs/queens.nat")
-  time_of(n.count,"goal8 Queens?",times=9)
-  time_of(n.count, "goal9 Queens?")
-  time_of(n.count, "goal10 Queens?")
-  #return # runs, but quite a bit longer
-  time_of(n.count, "goal11 Queens?")
-  time_of(n.count, "goal12 Queens?")
-
-def prof() :
-  import cProfile
-  p=cProfile.Profile()
-  def fun() :
-    n=natlog(text=my_text)
-    n.count('goal 200 L?')
-
-  p.runcall(fun)
-  p.print_stats(sort=1)
 
 
 # tests

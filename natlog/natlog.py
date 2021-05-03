@@ -3,11 +3,10 @@ sys.setrecursionlimit(2**15)
 
 from .scanner import Int
 from .parser import parse
-from .db import db
 from .unify import unifyWithEnv, extractTerm, \
   isvar, istuple, makeEnv, extendTo, vars_of
 from .db import db
-from .ndb import ndb
+#from .ndb import ndb
 from .conslist import *
 
 
@@ -172,18 +171,18 @@ def interp(css, goals , transformer, db=None):
 # encapsulates reading code, guery and REPL
 class natlog:
   ''' builds Natlog machine from text, rule file, ground facts tuple store'''
-  def __init__(self, text=None, file_name=None, db_name=None, db_type=0):
+  def __init__(self, text=None, file_name=None, db_name=None):
     if file_name:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      if db_type==0 :
-        self.db= db()
-      else :
-        self.db=ndb()
+      self.db_init()
       self.db.load(db_name)
     else:
       self.db=None
+
+  def db_init(self,db_name):
+    self.db=db()
 
   def generator_transformer(self):
     """
