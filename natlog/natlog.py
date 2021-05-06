@@ -182,6 +182,10 @@ class natlog:
       self.db=None
 
   def db_init(self,db_name):
+    """
+    overridable database initializer
+    sets the type of the database (default or neuro-symbolic)
+    """
     self.db=db()
 
   def generator_transformer(self):

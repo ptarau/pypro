@@ -17,6 +17,39 @@ my_text = """
       `llen Ys L. 
     """
 
+def test_generators():
+  prog="""
+  good 'l'.
+  good 'o'.
+  goal X : ``iter hello X, good X.
+  goal X : ``range 1000 1005 X.
+  """
+  n = natlog(text=prog)
+  for answer in n.solve("goal R?") :
+    print(answer[1])
+
+def test_answer_stream():
+  prog="""
+  perm () ().
+  perm (X Xs) Zs : perm Xs Ys, ins X Ys Zs.
+
+  ins X Xs (X Xs).
+  ins X (Y Xs) (Y Ys) : ins X Xs Ys.
+  """
+  n=natlog(text=prog)
+  for answer in n.solve("perm (a (b (c ()))) P?"):
+    print(answer[1])
+
+def yield_test():
+  prog="""
+    worm : ^o, worm.
+  """
+  n = natlog(text=prog)
+  for i,answer in enumerate(n.solve("worm ?")):
+    print(answer[0],end='')
+    if i > 42 : break
+  print('')
+
 # testing with string text
 def t1():
   n=natlog(text=my_text)
@@ -212,6 +245,8 @@ if __name__=="__main__" :
   #dtestj()
   #t5()
   #ndb_test() # tests transitive closure with learner
-  ndb_chem() # tests query about chemical elements
-
+  #ndb_chem() # tests query about chemical elements
+  #test_generators()
+  #test_answer_stream()
+  yield_test()
   pass
