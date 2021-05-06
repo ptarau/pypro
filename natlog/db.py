@@ -78,13 +78,24 @@ class db:
 
 
   def ground_match_of(self,h):
+    """
+    computes all ground matches of a query term in the db
+    if a constant occurs in the query, it must also occur in
+    a ground term that unifies with it, as the ground term
+    has no variables that would match the constant
+    """
+    # find all constants in query
     cs=const_of(h)
     if not cs :
+      # match against all, no help from indexing
       return set(range(len(self.css)))
+    # pick a copy of the first set where c occurs
     c=next(iter(cs))
     r=self.index[c].copy()
+    # shrink it by intersecting with sets  where other constants occur
     for x in cs:
       r &= self.index[x]
+    # these are all possible ground matches - return them
     return r
 
   # uses unification to match ground fact
