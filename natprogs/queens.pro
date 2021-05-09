@@ -1,4 +1,4 @@
-goal(Ps):-qs([1,2,3,4,5,6,7,8,9,10,11,12],Ps).
+goal(Ps):-qs([1,2,3,4,5,6,7,8,9,10],Ps).
 
 qs(Qs,Ps):-gen_places(Qs,Ps),place_queens(Qs,Ps,_,_).
 

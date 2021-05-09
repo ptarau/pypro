@@ -181,7 +181,7 @@ class natlog:
     else:
       self.db=None
 
-  def db_init(self,db_name):
+  def db_init(self):
     """
     overridable database initializer
     sets the type of the database (default or neuro-symbolic)

@@ -4,7 +4,7 @@ from sklearn.neural_network import MLPClassifier
 import numpy as np
 
 # simple multi-layer percdeptron
-def_learner=MLPClassifier(
+neural_learner=MLPClassifier(
   hidden_layer_sizes=(16,16),
   random_state=1234,
   verbose=1,
@@ -12,7 +12,7 @@ def_learner=MLPClassifier(
   max_iter=10000
 )
 
-#def_learner=RandomForestClassifier(random_state=1234) # alternative
+rf_leraner=RandomForestClassifier(random_state=1234) # alternative
 
 def set2bits(n,xs) :
   '''
@@ -42,12 +42,13 @@ class ndb(db) :
   replaces indexing in db with machine-learned equivalent
   '''
 
-  def load(self,fname,learner=def_learner):
+  def load(self,fname,learner=neural_learner):
     '''
     overrides loading mechanism to fit learner
     '''
     super().load(fname)
     db_const_dict = seq2nums(self.index) # assuming dict ordered
+    # create diagonal numpy matrix, one row for each constant
     X=np.eye(len(db_const_dict),dtype=int)
     val_count = len(self.css)
     y = np.array([set2bits(val_count, xs) for xs in self.index.values()])
@@ -68,5 +69,4 @@ class ndb(db) :
     rs = self.learner.predict(qs)
     matches = bits2set(list(rs[0]))
     return matches
-
 

@@ -77,26 +77,26 @@ class db:
     add_clause(self.index,self.css,cs)
 
 
-  def ground_match_of(self,h):
+  def ground_match_of(self,query):
     """
-    computes all ground matches of a query term in the db
+    computes all ground matches of a query term in the db;
     if a constant occurs in the query, it must also occur in
     a ground term that unifies with it, as the ground term
     has no variables that would match the constant
     """
     # find all constants in query
-    cs=const_of(h)
-    if not cs :
-      # match against all, no help from indexing
+    constants=const_of(query)
+    if not constants :
+      # match against all clauses css, no help from indexing
       return set(range(len(self.css)))
     # pick a copy of the first set where c occurs
-    c=next(iter(cs))
-    r=self.index[c].copy()
+    first_constant=next(iter(constants))
+    matches=self.index[first_constant].copy()
     # shrink it by intersecting with sets  where other constants occur
-    for x in cs:
-      r &= self.index[x]
+    for x in constants:
+      matches &= self.index[x]
     # these are all possible ground matches - return them
-    return r
+    return matches
 
   # uses unification to match ground fact
   # with bindining applied to vs and colelcted on trail

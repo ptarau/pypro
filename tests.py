@@ -38,7 +38,7 @@ def test_answer_stream():
   """
   n=natlog(text=prog)
   for answer in n.solve("perm (a (b (c ()))) P?"):
-    print(answer[1])
+    print(answer[2])
 
 def yield_test():
   prog="""
@@ -133,7 +133,6 @@ def ndb_chem() :
   print(nd)
   print('DB FACTS')
   print(nd.db)
-  nd.query("an_el Num Element ?")
   nd.query("gases Num Element ?")
 
 
@@ -240,13 +239,14 @@ if __name__=="__main__" :
   '''
   #db_test()
   #py_test()
+  #test_generators()
+ # test_answer_stream()
+  #yield_test()
   #bm()
   #prof()
-  #dtestj()
-  #t5()
+  dtestj()
+  t5()
   #ndb_test() # tests transitive closure with learner
-  #ndb_chem() # tests query about chemical elements
-  #test_generators()
-  #test_answer_stream()
-  yield_test()
+  ndb_chem() # tests query about chemical elements
+
   pass
