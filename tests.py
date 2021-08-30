@@ -79,7 +79,7 @@ def t3():
 def t5():
   n = natlog(file_name="natprogs/queens.nat")
   print(n)
-  n.query("goal Queens?")
+  n.query("goal8 Queens?")
 
 def t6() :
   n = natlog(file_name="natprogs/family.nat")
