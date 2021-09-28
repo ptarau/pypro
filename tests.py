@@ -79,7 +79,7 @@ def t3():
 def t5():
   n = natlog(file_name="natprogs/queens.nat")
   print(n)
-  n.query("goal8 Queens?")
+  n.query("goal10 Queens?")
 
 def t6() :
   n = natlog(file_name="natprogs/family.nat")
@@ -242,10 +242,9 @@ if __name__=="__main__" :
   #test_generators()
  # test_answer_stream()
   #yield_test()
-  #bm()
   #prof()
-  dtestj()
-  t5()
+  #dtestj()
+  #t5()
   #ndb_test() # tests transitive closure with learner
   ndb_chem() # tests query about chemical elements
 
