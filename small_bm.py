@@ -27,7 +27,7 @@ my_text = """
     """
 
 def bm():
-  n = natlog(text=my_text)
+  n = Natlog(text=my_text)
   n.query("goal 10 L?")
   time_of(n.count, "goal 16 L?", times=256)
   time_of(n.count, "goal 32 L?", times=64)
@@ -35,7 +35,7 @@ def bm():
   time_of(n.count, "goal 128 L?", times=4)
   # time_of(n.count, "goal 250 L?", times=1)
   print('')
-  n = natlog(file_name="natprogs/queens.nat")
+  n = Natlog(file_name="natprogs/queens.nat")
   time_of(n.count, "goal8 Queens?", times=9)
   time_of(n.count, "goal9 Queens?")
   time_of(n.count, "goal10 Queens?")
@@ -49,7 +49,7 @@ def prof():
   p = cProfile.Profile()
 
   def fun():
-    n = natlog(text=my_text)
+    n = Natlog(text=my_text)
     n.count('goal 200 L?')
 
   p.runcall(fun)

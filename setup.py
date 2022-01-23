@@ -8,8 +8,8 @@ with open('requirements.txt') as f:
 with open("README.md","r") as f:
     long_description = f.read()
 
-version = "0.4.0"
-setup(name='natlog',
+version = "0.4.1"
+setup(name='Natlog',
   version=version,
   description='Prolog-like interpreter and tuple store',
   long_description = long_description,
@@ -18,7 +18,7 @@ setup(name='natlog',
   author='Paul Tarau',
   author_USER_EMAIL='<paul.tarau@gmail.com>',
   license='Apache',
-  packages=['natlog'],
+  packages=['Natlog'],
   package_data={'natprogs': ['*.nat',"*.json"], 'bak':["*.py"]},
   include_package_data=True,
   install_requires = required,

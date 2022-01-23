@@ -2,8 +2,8 @@ from .natlog import natlog
 from .db import db
 from .unify import const_of
 
-#from natlog.parser import parse
-#from natlog.scanner import Int
+#from Natlog.Parser import parse
+#from Natlog.Scanner import Int
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 
@@ -13,7 +13,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 # WORK IN PROGRESS, TODO "
 
-def tsv2db(fname='natprogs/db.tsv'):
+def tsv2db(fname='natprogs/Db.tsv'):
   rels=db()
   #wss = tsv2mat(fname)
   #for ws in wss: rels.add_db_clause(ws)
@@ -87,7 +87,7 @@ class multilearner(natlog) :
   def __init__(self,
                text=None,
                file_name=None,
-               tsv_file='natprogs/db.tsv',
+               tsv_file='natprogs/Db.tsv',
                learner=learner
                ):
     if not text and not file_name: text = ""
@@ -143,11 +143,11 @@ class multilearner(natlog) :
 
 
 '''
-class natlearner(natlog) :
+class natlearner(Natlog) :
   def __init__(self,
                text=None,
                file_name=None,
-               tsv_file='natprogs/db.tsv',
+               tsv_file='natprogs/Db.tsv',
                learner=learner
                ):
     if not text and not file_name : text = ""

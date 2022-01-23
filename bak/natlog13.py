@@ -1,7 +1,7 @@
 from natlog.parser import parse
 from natlog.unify import unifyWithEnv, extractTerm, \
   isvar, istuple, extendTo, vars_of
-from natlog.natlog import db
+from natlog.natlog import Db
 
 print('version 0.1.0')
 
@@ -49,7 +49,7 @@ def interp(css, goals ,db=None):
 
     ## special operators
 
-    # yields facts matching g in db
+    # yields facts matching g in Db
     def db_call(g,goals) :
       for ok in db.unify_with_fact(g, vs, trail):
         if not ok:  # FAILURE
@@ -122,7 +122,7 @@ class natlog:
       text = self.consult(file_name)
     self.css = tuple(parse(text, ground=False, rule=True))
     if db_name:
-      self.db= db.db()
+      self.db= Db.db()
       self.db.load(db_name)
     else:
       self.db=None

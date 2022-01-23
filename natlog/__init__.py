@@ -1,7 +1,7 @@
-__all__ = ('natlog','interp')
+__all__ = ('Natlog', 'interp')
 
 from .natlog import *
-from .db import db
-#from .ndb import ndb
-#from .neural_natlog import ndb
-__version__='0.4.0'
+from .db import Db
+#from .Ndb import Ndb
+#from .NeuralNatlog import Ndb
+__version__='0.4.1'
