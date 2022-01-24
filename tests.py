@@ -94,6 +94,11 @@ def t6():
 
 def t7():
     n = Natlog(file_name="natprogs/family.nat")
+    n.query("parent_of X B?")
+
+
+def t8():
+    n = Natlog(file_name="natprogs/family.nat")
     print('Enter some queries!')
     n.repl()
 
@@ -250,7 +255,6 @@ def dtestj():
 if __name__ == "__main__":
     """
     uncomment any
-    """
     db_test()
     py_test()
     test_generators()
@@ -258,7 +262,10 @@ if __name__ == "__main__":
     yield_test()
     dtestj()
     t5()
+    t7()
     ndb_test()  # tests transitive closure with learner
+    
     ndb_chem()  # tests query about chemical elements
-
+    """
     pass
+    t7()

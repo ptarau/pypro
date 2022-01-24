@@ -17,7 +17,7 @@ parent_of 'Miranda' 'Mike'.
 
 sibling_of X S: parent_of X P, parent_of S P.
 
-brother_of X B: sibling_of X, B male B.
+brother_of X B: sibling_of X B, male B.
 
 sister_of X S: sibling_of X S, female S.
 
@@ -30,4 +30,3 @@ grand_parent_of X GP: parent_of X P, parent_of P GP.
 cousin_of X C:
   grand_parent_of X GP,
   grand_parent_of C GP.
-  

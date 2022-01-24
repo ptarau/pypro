@@ -225,9 +225,7 @@ class Natlog:
             db = self.db
         else:
             db = None
-        goals = tuple(parse(quest, ground=False, rule=False))
-        print('GOAL PARSED:', goals)
-        for answer in interp(self.css, goals, self.generator_transformer(), db=db):
+        for answer in self.solve(quest):
             print('ANSWER:', answer)
         print('')
 
