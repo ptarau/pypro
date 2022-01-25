@@ -130,7 +130,10 @@ def interp(css, goals, transformer, db=None):
             """
             dispatches several types of calls to Python
             """
-            if op == '~':  # matches against database of facts
+            if op == 'not':
+                if neg(g):
+                    yield from step(goals)
+            elif op == '~':  # matches against database of facts
                 yield from db_call(g, goals)
             elif op == '^':  # yield g as an answer directly
                 yield g
@@ -144,6 +147,17 @@ def interp(css, goals, transformer, db=None):
                 yield from step(goals)
             undo()
 
+        def neg(g):
+            no_sol = object()
+            #a = next(step((g, ())), no_sol)
+            g = extractTerm(g, vs)
+            gs=(g,())
+            a = next(interp(css,gs,transformer,db=db),no_sol)
+            #undo()
+            if a is no_sol:
+                return True
+            return False
+
         # step
         if goals == ():
             yield extractTerm(goal, vs)
@@ -153,7 +167,7 @@ def interp(css, goals, transformer, db=None):
             g, goals = goals
             op = g[0]
 
-            if op in ["~", "`", "``", "^", "#"]:
+            if op in ["not", "~", "`", "``", "^", "#"]:
                 g = extractTerm(g[1:], vs)
                 yield from dispatch_call(op, g, goals)
             else:
@@ -226,7 +240,7 @@ class Natlog:
         else:
             db = None
         for answer in self.solve(quest):
-            print('ANSWER:', answer)
+            print('ANSWER:', *answer)
         print('')
 
     def consult(self, file_name):

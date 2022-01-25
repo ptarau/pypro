@@ -94,7 +94,7 @@ def t6():
 
 def t7():
     n = Natlog(file_name="natprogs/family.nat")
-    n.query("parent_of X B?")
+    n.query("brother of X B?")
 
 
 def t8():
@@ -269,3 +269,4 @@ if __name__ == "__main__":
     """
     pass
     t7()
+    t8()
