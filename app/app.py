@@ -7,7 +7,7 @@ print('streamlit :-)')
 
 st.set_page_config(layout="wide")
 
-st.title('Streamlit-based Prolog Client')
+st.title('Streamlit-based Natlog Client')
 
 
 def ppp(*args):
