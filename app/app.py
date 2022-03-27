@@ -1,35 +1,37 @@
 import os
 
 import streamlit as st
-
 from natlog.natlog import *
 
-print('starting')
+print('streamlit :-)')
 
 st.set_page_config(layout="wide")
 
-st.title('Natlog')
-
-left, right = st.columns((1, 1))
-
-upload_dir='natprogs/'
-
-uploaded_file = st.sidebar.file_uploader('Select a File', type=['.nat'])
+st.title('Streamlit-based Prolog Client')
 
 
-def handle_uploaded():
-    if uploaded_file is None: return None
-    fpath = save_uploaded_file()
-    suf = fpath[-4:]
-    fname = fpath[:-4]
-    if suf == '.nat':
-        return fpath
+def ppp(*args):
+    st.write(*args)
+
+
+upload_dir = '../natprogs/'
+
+suf = '.nat'
+
+
+def handle_uploaded(uploaded_file):
+    if uploaded_file is not None:
+        fname = save_uploaded_file(uploaded_file)
+        suf0 = '.'+fname.split('.')[-1]
+        if suf0 == suf:
+            return fname
+        else:
+            ppp(f'Please chose a {suf} file!')
     else:
-        with right:
-            st.write('Please upload a .nat file!')
+        ppp(f'Please upload your {suf} file!')
 
 
-def save_uploaded_file():
+def save_uploaded_file(uploaded_file):
     name = uploaded_file.name
     fname = os.path.join(upload_dir, name)
     if exists_file(fname): return fname
@@ -45,61 +47,31 @@ def ensure_path(fname):
 
 
 def exists_file(fname):
-    """ if it exists as file or dir"""
     return os.path.exists(fname)
 
 
+fname=handle_uploaded(st.sidebar.file_uploader('Select a File', type=[suf]))
+print(f'fname{fname}:')
+
+nat = Natlog(file_name=fname)
+print(nat)
+
 with st.sidebar:
-    with st.form('Query'):
-        if 'fname' in st.session_state:
-            fname = st.session_state.fname
-        else:
-            fname = ""
-        fname = st.text_input('File to consult?', fname)
-        st.session_state.fname = fname
-
-        if 'question' in st.session_state:
-            question = st.session_state.question
-        else:
-            question = ""
-        question = st.text_area(
-            'Query?',
-            question)
-        st.session_state.question=question
-
-        query_it = st.form_submit_button('Submit your question!')
-
-        if query_it:
-            with left:
-                st.write('Query:' + " " + question)
-
-
-def do_load():
-    fname = handle_uploaded()
-
-    while not fname:
-        st.write('Please upload a file!')
-
-    print('loading fname:', fname)
+    question = st.text_area('Query?')
+    query_it = st.button('Submit your question!')
 
 
 def do_query():
-    nat = Natlog(file_name=fname)
+    ppp('?- ' + question)
+
     answers = list(nat.solve(question))
 
-    with left:
-        st.write('Answers:')
-        # answers = ['one','two']
-        if not answers:
-            st.write("I do not know.")
-        else:
-            for sent in answers:
-                st.write(sent)
+    if not answers:
+        ppp("I do not know.")
+    else:
+        for a in answers:
+            ppp(a)
 
-
-if uploaded_file:
-    fname = handle_uploaded()
-    if fname is not None: st.session_state.fname = fname
 
 if query_it:
     do_query()

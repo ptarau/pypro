@@ -133,7 +133,7 @@ def const_of0(t):
         pass
     elif istuple(t):
         for x in t:
-            yield from const_of(x)
+            yield from const_of0(x)
     else:
         yield t
 
@@ -146,7 +146,7 @@ def vars_of0(t):
         yield t
     elif istuple(t):
         for x in t:
-            yield from vars_of(x)
+            yield from vars_of0(x)
     else:
         pass
 
