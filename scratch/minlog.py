@@ -43,7 +43,7 @@ def unify(x, y, trail):
             x2.bind(x1, trail)
         elif not isinstance(x1, tuple):
             return False
-        else:
+        else: # assumed x1 is a tuple
             arity = len(x1)
             if len(x2) != arity:
                 return False
