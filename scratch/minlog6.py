@@ -30,6 +30,7 @@ def deref(v):
         v = v.val
     return v
 
+
 def new_var(t, d):
     v = d.get(t.val, None)
     if v is None:
@@ -40,26 +41,29 @@ def new_var(t, d):
 def relocate(y, d):
     if isinstance(y, VarNum):
         return new_var(y, d)
-    elif not isinstance(y,tuple):
+    elif not is_compound(y):
         return y
-    rstack = []
-    x = []
-    rstack.append(y)
-    rstack.append(x)
-    while rstack:
-        x1 = rstack.pop()
-        x2 = rstack.pop()
+    ustack = []
+    x = [None] * len(y)
+    ustack.append(y)
+    ustack.append(x)
+    while ustack:
+        x1 = ustack.pop()
+        x2 = ustack.pop()
         if is_compound(x2):
-            for t in x2:
-                if isinstance(t, VarNum):
-                    u = new_var(t, d)
-                elif isinstance(t,tuple):
-                    u = []
+            arity = len(x2)
+
+            for i in range(arity - 1, -1, -1):
+
+                if isinstance(x2[i], VarNum):
+                    x1[i] = new_var(x2[i], d)
+                elif is_compound(x2[i]):
+                    x1[i] = [None] * len(x2[i])
                 else:
-                    u = t
-                x1.append(u)
-                rstack.append(t)
-                rstack.append(u)
+                    x1[i] = x2[i]
+
+                ustack.append(x2[i])
+                ustack.append(x1[i])
     return x
 
 

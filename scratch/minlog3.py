@@ -20,8 +20,6 @@ class Var:
         else:
             return repr(v)
 
-def is_compound(t):
-    return isinstance(t,tuple) or isinstance(t,list)
 
 def deref(v):
     while isinstance(v, Var):
@@ -30,68 +28,42 @@ def deref(v):
         v = v.val
     return v
 
-def new_var(t, d):
-    v = d.get(t.val, None)
-    if v is None:
-        v = Var()
-        d[t.val] = v
-    return v
 
-def relocate(y, d):
-    if isinstance(y, VarNum):
-        return new_var(y, d)
-    elif not isinstance(y,tuple):
-        return y
-    rstack = []
-    x = []
-    rstack.append(y)
-    rstack.append(x)
-    while rstack:
-        x1 = rstack.pop()
-        x2 = rstack.pop()
-        if is_compound(x2):
-            for t in x2:
-                if isinstance(t, VarNum):
-                    u = new_var(t, d)
-                elif isinstance(t,tuple):
-                    u = []
-                else:
-                    u = t
-                x1.append(u)
-                rstack.append(t)
-                rstack.append(u)
-    return x
-
-
-def unify(x, y, trail, d):
+def unify(x, y, trail):
     ustack = []
     ustack.append(y)
     ustack.append(x)
     while ustack:
         x1 = deref(ustack.pop())
         x2 = deref(ustack.pop())
-
-        if isinstance(x1, VarNum):
-            x1 = new_var(x1, d)
-            x1.bind(x2, trail)
-        elif x1 == x2:
-            continue
-        elif isinstance(x1, Var):
+        if x1 == x2: continue
+        if isinstance(x1, Var):
             x1.bind(x2, trail)
         elif isinstance(x2, Var):
-            x1 = relocate(x1, d)
             x2.bind(x1, trail)
-        elif is_compound(x2):
-            arity = len(x2)
-            if len(x1) != arity:
+        elif not isinstance(x1, tuple):
+            return False
+        else: # assumed x1 is a tuple
+            arity = len(x1)
+            if len(x2) != arity:
                 return False
-            x1 = relocate(x1, d)
             for i in range(arity - 1, -1, -1):
                 ustack.append(x2[i])
                 ustack.append(x1[i])
-        else:
-            return False
     return True
+
+
+def relocate(t, d):
+    if isinstance(t, VarNum):
+        v = d.get(t.val, None)
+        if v is None:
+            v = Var()
+            d[t.val] = v
+        return v
+    elif not isinstance(t, tuple):
+        return t
+    else:
+        return tuple(relocate(x, d) for x in t)
 
 
 def interp(css, goal):
@@ -105,8 +77,8 @@ def interp(css, goal):
         def unfold(g, gs):
             for (h, bs) in css:
                 d = dict()
-                # h = relocate(h, d)
-                if not unify(h, g, trail, d):
+                h = relocate(h, d)
+                if not unify(h, g, trail):
                     undo(trail)
                     continue  # FAILURE
                 else:
@@ -176,6 +148,36 @@ class MinLog:
     def __repr__(self):
         xs = [str(cs) + '\n' for cs in self.css]
         return " ".join(xs)
+
+
+def test_unify1():
+    x = Var()
+    print(deref(x))
+
+    v = Var()
+    u = Var()
+    u.bind(42, [])
+    v.bind(u, [])
+    print(x)
+    print(u)
+    print(deref(v))
+
+
+def test_unify():
+    X, Y, Z = Var(), Var(), Var()
+    f, g, a, b, c = tuple("fgabc")
+    t1 = (f, X, (g, a, Y), 10)
+    t2 = (f, b, (g, Z, c), 10)
+    trail = []
+
+    r = unify(t1, t2, trail)
+    print('UNIF:', r)
+    print(t1)
+    print(t2)
+    print(trail)
+    t = (f, 0, (g, a, 1), 0)
+    d = dict()
+    print(relocate(t, d))
 
 
 def test_minlog():

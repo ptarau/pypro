@@ -20,8 +20,6 @@ class Var:
         else:
             return repr(v)
 
-def is_compound(t):
-    return isinstance(t,tuple) or isinstance(t,list)
 
 def deref(v):
     while isinstance(v, Var):
@@ -30,6 +28,7 @@ def deref(v):
         v = v.val
     return v
 
+
 def new_var(t, d):
     v = d.get(t.val, None)
     if v is None:
@@ -37,30 +36,14 @@ def new_var(t, d):
         d[t.val] = v
     return v
 
-def relocate(y, d):
-    if isinstance(y, VarNum):
-        return new_var(y, d)
-    elif not isinstance(y,tuple):
-        return y
-    rstack = []
-    x = []
-    rstack.append(y)
-    rstack.append(x)
-    while rstack:
-        x1 = rstack.pop()
-        x2 = rstack.pop()
-        if is_compound(x2):
-            for t in x2:
-                if isinstance(t, VarNum):
-                    u = new_var(t, d)
-                elif isinstance(t,tuple):
-                    u = []
-                else:
-                    u = t
-                x1.append(u)
-                rstack.append(t)
-                rstack.append(u)
-    return x
+
+def relocate(t, d):
+    if isinstance(t, VarNum):
+        return new_var(t, d)
+    elif not isinstance(t, tuple):
+        return t
+    else:
+        return tuple(relocate(x, d) for x in t)
 
 
 def unify(x, y, trail, d):
@@ -81,7 +64,7 @@ def unify(x, y, trail, d):
         elif isinstance(x2, Var):
             x1 = relocate(x1, d)
             x2.bind(x1, trail)
-        elif is_compound(x2):
+        elif isinstance(x2, tuple):
             arity = len(x2)
             if len(x1) != arity:
                 return False
