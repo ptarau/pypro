@@ -86,12 +86,19 @@ def to_clause(xs):
 def mparse(text, ground=False, rule=False):
     s = Scanner(text, ground=ground)
     for ws in s.run():
+        if not rule :ws = ('head_',':')+ws
         ws = ("(",) + ws + (")",)
         p = Parser(ws)
         r = p.run()
-        if rule: r = to_clause(r)
+        r = to_clause(r)
+        if not rule: r=to_goal(r[1])
         yield r
 
+def to_goal(ts):
+    gs=()
+    for g in reversed(ts):
+        gs=(g,gs)
+    return gs
 
 # tests
 

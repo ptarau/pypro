@@ -85,8 +85,7 @@ def extractTerm(t):
         return tuple(map(extractTerm, t))
 
 
-def interp(css, goal):
-
+def interp(css, goals0):
     def step(goals):
 
         def undo():
@@ -102,16 +101,16 @@ def interp(css, goal):
                     continue  # FAILURE
                 else:
                     # NOT TO BE CHANGED !!!
-                    # bs_ = activate(bs, d)
                     bsgs = gs
                     for b in reversed(bs):
                         b = activate(b, d)
                         bsgs = (b, bsgs)
                     yield bsgs  # SUCCESS
 
-                # simple call to Python (e.g., print, no return expected)
-
         def python_call(g):
+            """
+            simple call to Python (e.g., print, no return expected)
+            """
             f = eval(g[0])
             args = to_python(g[1:])
             f(*args)
@@ -168,15 +167,15 @@ def interp(css, goal):
 
         def neg(g):
             no_sol = object()
-            #g = extractTerm(g)
-            a=next(step((g,())),no_sol)
+            # g = extractTerm(g)
+            a = next(step((g, ())), no_sol)
             if a is no_sol:
                 return True
             return False
 
         trail = []
         if goals == ():
-            yield extractTerm(goal)
+            yield extractTerm(goals0)
         else:
             g, goals = goals
             op = g[0]
@@ -188,8 +187,8 @@ def interp(css, goal):
                     yield from step(newgoals)
                     undo()
 
-    goal = activate(goal, dict())
-    yield from step((goal, ()))
+    goals0 = activate(goals0, dict())
+    yield from step(goals0)
 
 
 class MinLog:
@@ -205,8 +204,9 @@ class MinLog:
         """
          answer generator for given question
         """
-        goal = next(mparse(quest, ground=False, rule=False))
-        yield from interp(self.css, goal)
+        goals = next(mparse(quest, ground=False, rule=False))
+        print('<<<<<<', goals)
+        yield from interp(self.css, goals)
 
     def count(self, quest):
         """
@@ -259,7 +259,7 @@ def test_minlog():
 
     n = MinLog(file_name="../natprogs/family.nat")
     # print(n)
-    n.query("cousin of X C?")
+    n.query("cousin of X C, male C?")
     n.repl()
 
     n.repl()

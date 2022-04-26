@@ -100,7 +100,7 @@ def interp(css, goals):
                 undo(trail)
 
     goal = goals[0]
-    yield from step((goal, ()))
+    yield from step((goal))
 
 
 class MinLog:
