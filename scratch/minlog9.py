@@ -86,6 +86,7 @@ def extractTerm(t):
 
 
 def interp(css, goal):
+
     def step(goals):
 
         def undo():
@@ -101,10 +102,10 @@ def interp(css, goal):
                     continue  # FAILURE
                 else:
                     # NOT TO BE CHANGED !!!
-                    #bs_ = activate(bs, d)
+                    # bs_ = activate(bs, d)
                     bsgs = gs
                     for b in reversed(bs):
-                        b=activate(b,d)
+                        b = activate(b, d)
                         bsgs = (b, bsgs)
                     yield bsgs  # SUCCESS
 
@@ -148,7 +149,6 @@ def interp(css, goal):
             """
             dispatches several types of calls to Python
             """
-            #print("@@@@",op,g)
             if op == 'not':
                 if neg(g):
                     yield from step(goals)
@@ -168,9 +168,8 @@ def interp(css, goal):
 
         def neg(g):
             no_sol = object()
-            gs = (g, ())
-            a = next(interp(css, gs), no_sol)
-
+            #g = extractTerm(g)
+            a=next(step((g,())),no_sol)
             if a is no_sol:
                 return True
             return False
@@ -251,15 +250,20 @@ def test_minlog():
     # n.query("goal8 Queens?")
 
     n = MinLog(file_name="../natprogs/perm.nat")
-    #print(n)
+    # print(n)
     n.query("perm (1 (2 (3 ())))  X ?")
 
     n = MinLog(file_name="../natprogs/py_call.nat")
-    #print(n)
+    # print(n)
     n.query("goal X?")
+
+    n = MinLog(file_name="../natprogs/family.nat")
+    # print(n)
+    n.query("cousin of X C?")
+    n.repl()
+
     n.repl()
 
 
 if __name__ == "__main__":
-
     test_minlog()
