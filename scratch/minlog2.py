@@ -190,7 +190,7 @@ def test_minlog():
     n.query("tc Who is animal ?")
 
     n = MinLog(file_name="../natprogs/queens.nat")
-    n.query("goal10 Queens?")
+    n.query("goal8 Queens?")
 
 
 if __name__ == "__main__":
