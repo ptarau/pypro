@@ -2,7 +2,7 @@ a 1.
 a 2.
 
 b X : a X.
-b X : `sum (1 2 3) X, #print sum is X.
+b X : `sum (1 2 3) X, #print sum is X, c(X).
 
 c 1 : ^just yielding 42 .
 c 3.

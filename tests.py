@@ -158,6 +158,11 @@ def py_test():
     # print(nd)
     nd.query("goal X?")
 
+def py_test1():
+    nd = Natlog(file_name="natprogs/py_call1.nat")
+    print('RULES')
+    # print(nd)
+    nd.query("goal X?")
 
 def go():
     t1()
@@ -268,5 +273,9 @@ if __name__ == "__main__":
     ndb_chem()  # tests query about chemical elements
     """
     pass
-    t7()
-    t8()
+    #ndb_test()
+    #t7()
+    ##t8()
+    #go()
+    py_test()
+

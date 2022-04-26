@@ -2,6 +2,8 @@ from mparser import mparse
 from mscanner import VarNum
 
 
+# DERIVED FROM minlog3.py
+
 class Var:
     def __init__(self):
         self.val = None
@@ -88,15 +90,19 @@ def interp(css, goal):
                         bsgs = (b1, bsgs)
                     yield bsgs  # SUCCESS
 
-        trail = []
         if goals == ():
             yield goal
         else:
+            trail = []
             g, gs = goals
-            for newgoals in unfold(g, gs):
-                yield from step(newgoals)
-                undo(trail)
+            if g[0] in {"#"}:
+                print('here:', 42)
+            else:
+                for newgoals in unfold(g, gs):
+                    yield from step(newgoals)
+                    undo(trail)
 
+    goal = activate(goal, dict())
     yield from step((goal, ()))
 
 
@@ -113,8 +119,7 @@ class MinLog:
         """
          answer generator for given question
         """
-        goal_cls = next(mparse(quest, ground=False, rule=False))
-        goal = activate(goal_cls, dict())
+        goal = next(mparse(quest, ground=False, rule=False))
         yield from interp(self.css, goal)
 
     def count(self, quest):
@@ -162,6 +167,15 @@ def test_minlog():
     print(n)
     n.query("perm (1 (2 (3 ())))  X ?")
 
+
+def py_test():
+    nd = MinLog(file_name="../natprogs/py_call1.nat")
+    print('RULES')
+    print(nd)
+    nd.query("goal X?")
+    # nd.repl()
+
+
 if __name__ == "__main__":
     test_minlog()
-
+    py_test()

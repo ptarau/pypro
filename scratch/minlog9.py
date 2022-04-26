@@ -2,6 +2,8 @@ from mparser import mparse
 from mscanner import VarNum
 
 
+# DERIVED FROM minlog3.py
+
 class Var:
     def __init__(self):
         self.val = None
@@ -66,37 +68,128 @@ def activate(t, d):
         return tuple(activate(x, d) for x in t)
 
 
+def to_python(x):
+    return x
+
+
+def from_python(x):
+    return x
+
+
+def extractTerm(t):
+    if isinstance(t, Var):
+        return deref(t)
+    elif not isinstance(t, tuple):
+        return t
+    else:
+        return tuple(map(extractTerm, t))
+
+
 def interp(css, goal):
     def step(goals):
 
-        def undo(trail):
+        def undo():
             while trail:
-                v = trail.pop()
-                v.unbind()
+                trail.pop().unbind()
 
         def unfold(g, gs):
             for (h, bs) in css:
                 d = dict()
                 h = activate(h, d)
                 if not unify(h, g, trail):
-                    undo(trail)
+                    undo()
                     continue  # FAILURE
                 else:
-                    bs1 = activate(bs, d)
+                    # NOT TO BE CHANGED !!!
+                    #bs_ = activate(bs, d)
                     bsgs = gs
-                    for b1 in reversed(bs1):
-                        bsgs = (b1, bsgs)
+                    for b in reversed(bs):
+                        b=activate(b,d)
+                        bsgs = (b, bsgs)
                     yield bsgs  # SUCCESS
+
+                # simple call to Python (e.g., print, no return expected)
+
+        def python_call(g):
+            f = eval(g[0])
+            args = to_python(g[1:])
+            f(*args)
+
+        def python_fun(g, goals):
+            """
+            function call to Python, last arg unified with result
+            """
+            f = eval(g[0])
+            g = g[1:]
+            v = g[-1]
+            args = to_python(g[:-1])
+            r = f(*args)
+            r = from_python(r)
+            if not unify(v, r, trail=trail):
+                undo()
+            else:
+                yield from step(goals)
+
+            # unifies with last arg yield from a generator
+            # and first args, assumed ground, passed to it
+
+        def gen_call(g, goals):
+            gen = eval(g[0])
+            g = g[1:]
+            v = g[-1]
+            args = to_python(g[:-1])
+            for r in gen(*args):
+                r = from_python(r)
+                if unify(v, r, trail=trail):
+                    yield from step(goals)
+                undo()
+
+        def dispatch_call(op, g, goals):
+            """
+            dispatches several types of calls to Python
+            """
+            #print("@@@@",op,g)
+            if op == 'not':
+                if neg(g):
+                    yield from step(goals)
+            elif op == '~':  # matches against database of facts
+                yield from db_call(g, goals)
+            elif op == '^':  # yield g as an answer directly
+                yield g
+                yield from step(goals)
+            elif op == '`':  # function call, last arg unified
+                yield from python_fun(g, goals)
+            elif op == "``":  # generator call, last arg unified
+                yield from gen_call(g, goals)
+            else:  # op == '#',  simple call, no return
+                python_call(g)
+                yield from step(goals)
+            undo()
+
+        def neg(g):
+            no_sol = object()
+            gs = (g, ())
+            a = next(interp(css, gs), no_sol)
+
+            if a is no_sol:
+                return True
+            return False
 
         trail = []
         if goals == ():
-            yield goal
+            yield extractTerm(goal)
         else:
-            g, gs = goals
-            for newgoals in unfold(g, gs):
-                yield from step(newgoals)
-                undo(trail)
+            g, goals = goals
+            op = g[0]
+            if op in {"not", "~", "`", "``", "^", "#"}:
+                g = extractTerm(g[1:])
+                yield from dispatch_call(op, g, goals)
+            else:
+                for newgoals in unfold(g, goals):
+                    yield from step(newgoals)
+                    undo()
 
+    goal = activate(goal, dict())
     yield from step((goal, ()))
 
 
@@ -113,8 +206,7 @@ class MinLog:
         """
          answer generator for given question
         """
-        goal_cls = next(mparse(quest, ground=False, rule=False))
-        goal = activate(goal_cls, dict())
+        goal = next(mparse(quest, ground=False, rule=False))
         yield from interp(self.css, goal)
 
     def count(self, quest):
@@ -159,9 +251,15 @@ def test_minlog():
     # n.query("goal8 Queens?")
 
     n = MinLog(file_name="../natprogs/perm.nat")
-    print(n)
+    #print(n)
     n.query("perm (1 (2 (3 ())))  X ?")
 
-if __name__ == "__main__":
-    test_minlog()
+    n = MinLog(file_name="../natprogs/py_call.nat")
+    #print(n)
+    n.query("goal X?")
+    n.repl()
 
+
+if __name__ == "__main__":
+
+    test_minlog()

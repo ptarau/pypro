@@ -73,4 +73,5 @@ class Ndb(Db):
         qs = np.array([set2bits(db_const_count, query_consts_nums)])
         rs = self.learner.predict(qs)
         matches = bits2set(list(rs[0]))
+        #print('!!!!!!:',matches)
         return matches
