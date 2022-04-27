@@ -20,15 +20,13 @@ class Var:
         else:
             return repr(v)
 
-def is_compound(t):
-    return isinstance(t,tuple) or isinstance(t,list)
-
 def deref(v):
     while isinstance(v, Var):
         if v.val is None:
             return v
         v = v.val
     return v
+
 
 def new_var(t, d):
     v = d.get(t, None)
@@ -37,30 +35,22 @@ def new_var(t, d):
         d[t] = v
     return v
 
-def relocate(y, d):
-    if isinstance(y, VarNum):
-        return new_var(y, d)
-    elif not isinstance(y,tuple):
-        return y
-    rstack = []
-    x = []
-    rstack.append(y)
-    rstack.append(x)
-    while rstack:
-        x1 = rstack.pop()
-        x2 = rstack.pop()
-        if is_compound(x2):
-            for t in x2:
-                if isinstance(t, VarNum):
-                    u = new_var(t, d)
-                elif isinstance(t,tuple):
-                    u = []
-                else:
-                    u = t
-                x1.append(u)
-                rstack.append(t)
-                rstack.append(u)
-    return x
+
+class arity(int):
+    def __repr__(self):
+        return f'$({int(self)})'
+
+def relocate(t, d):
+    if isinstance(t, VarNum):
+        v = d.get(t, None)
+        if v is None:
+            v = Var()
+            d[t] = v
+        return v
+    elif not isinstance(t, tuple):
+        return t
+    else:
+        return tuple(relocate(x, d) for x in t)
 
 
 def unify(x, y, trail, d):
@@ -81,7 +71,9 @@ def unify(x, y, trail, d):
         elif isinstance(x2, Var):
             x1 = relocate(x1, d)
             x2.bind(x1, trail)
-        elif is_compound(x2):
+        elif not isinstance(x2, tuple):
+            return False
+        else:  # assumed x1 is a tuple
             arity = len(x2)
             if len(x1) != arity:
                 return False
@@ -89,8 +81,6 @@ def unify(x, y, trail, d):
             for i in range(arity - 1, -1, -1):
                 ustack.append(x2[i])
                 ustack.append(x1[i])
-        else:
-            return False
     return True
 
 
@@ -125,7 +115,7 @@ def interp(css, goal):
                 yield from step(newgoals)
                 undo(trail)
 
-    yield from step((goal, ()))
+    yield from step((goal))
 
 
 class MinLog:
@@ -176,6 +166,36 @@ class MinLog:
     def __repr__(self):
         xs = [str(cs) + '\n' for cs in self.css]
         return " ".join(xs)
+
+
+def test_unify1():
+    x = Var()
+    print(deref(x))
+
+    v = Var()
+    u = Var()
+    u.bind(42, [])
+    v.bind(u, [])
+    print(x)
+    print(u)
+    print(deref(v))
+
+
+def test_unify():
+    X, Y, Z = Var(), Var(), Var()
+    f, g, a, b, c = tuple("fgabc")
+    t1 = (f, X, (g, a, Y), 10)
+    t2 = (f, b, (g, Z, c), 10)
+    trail = []
+
+    r = unify(t1, t2, trail, dict())
+    print('UNIF:', r)
+    print(t1)
+    print(t2)
+    print(trail)
+    t = (f, 0, (g, a, 1), 0)
+    d = dict()
+    print(relocate(t, d))
 
 
 def test_minlog():

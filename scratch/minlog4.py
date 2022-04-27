@@ -30,10 +30,10 @@ def deref(v):
 
 
 def new_var(t, d):
-    v = d.get(t.val, None)
+    v = d.get(t, None)
     if v is None:
         v = Var()
-        d[t.val] = v
+        d[t] = v
     return v
 
 

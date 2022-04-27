@@ -55,10 +55,10 @@ def unify(x, y, trail):
 
 def relocate(t, d):
     if isinstance(t, VarNum):
-        v = d.get(t.val, None)
+        v = d.get(t, None)
         if v is None:
             v = Var()
-            d[t.val] = v
+            d[t] = v
         return v
     elif not isinstance(t, tuple):
         return t

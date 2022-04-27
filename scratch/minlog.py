@@ -2,8 +2,6 @@ from mparser import mparse
 from mscanner import VarNum
 
 
-# DERIVED FROM minlog3.py
-
 class Var:
     def __init__(self):
         self.val = None
@@ -31,164 +29,86 @@ def deref(v):
     return v
 
 
-def unify(x, y, trail):
+def new_var(t, d):
+    v = d.get(t, None)
+    if v is None:
+        v = Var()
+        d[t] = v
+    return v
+
+
+def relocate(t, d):
+    if isinstance(t, VarNum):
+        return new_var(t, d)
+    elif not isinstance(t, tuple):
+        return t
+    else:
+        return tuple(relocate(x, d) for x in t)
+
+
+def unify(x, y, trail, d):
     ustack = []
     ustack.append(y)
     ustack.append(x)
     while ustack:
         x1 = deref(ustack.pop())
         x2 = deref(ustack.pop())
-        if x1 == x2: continue
-        if isinstance(x1, Var):
+
+        if isinstance(x1, VarNum):
+            x1 = new_var(x1, d)
+            x1.bind(x2, trail)
+        elif x1 == x2:
+            continue
+        elif isinstance(x1, Var):
             x1.bind(x2, trail)
         elif isinstance(x2, Var):
+            x1 = relocate(x1, d)
             x2.bind(x1, trail)
-        elif not isinstance(x1, tuple):
-            return False
-        else:  # assumed x1 is a tuple
-            arity = len(x1)
-            if len(x2) != arity:
+        elif isinstance(x2, tuple):
+            arity = len(x2)
+            if len(x1) != arity:
                 return False
+            x1 = relocate(x1, d)
             for i in range(arity - 1, -1, -1):
                 ustack.append(x2[i])
                 ustack.append(x1[i])
+        else:
+            return False
     return True
 
 
-def activate(t, d):
-    if isinstance(t, VarNum):
-        v = d.get(t.val, None)
-        if v is None:
-            v = Var()
-            d[t.val] = v
-        return v
-    elif not isinstance(t, tuple):
-        return t
-    else:
-        return tuple(activate(x, d) for x in t)
-
-
-def to_python(x):
-    return x
-
-
-def from_python(x):
-    return x
-
-
-def extractTerm(t):
-    if isinstance(t, Var):
-        return deref(t)
-    elif not isinstance(t, tuple):
-        return t
-    else:
-        return tuple(map(extractTerm, t))
-
-
-def interp(css, goals0):
+def interp(css, goal):
     def step(goals):
 
-        def undo():
+        def undo(trail):
             while trail:
-                trail.pop().unbind()
+                v = trail.pop()
+                v.unbind()
 
         def unfold(g, gs):
             for (h, bs) in css:
                 d = dict()
-                h = activate(h, d)
-                if not unify(h, g, trail):
-                    undo()
+                # h = relocate(h, d)
+                if not unify(h, g, trail, d):
+                    undo(trail)
                     continue  # FAILURE
                 else:
-                    # NOT TO BE CHANGED !!!
+                    bs1 = relocate(bs, d)
                     bsgs = gs
-                    for b in reversed(bs):
-                        b = activate(b, d)
-                        bsgs = (b, bsgs)
+                    for b1 in reversed(bs1):
+                        bsgs = (b1, bsgs)
                     yield bsgs  # SUCCESS
 
-        def python_call(g):
-            """
-            simple call to Python (e.g., print, no return expected)
-            """
-            f = eval(g[0])
-            args = to_python(g[1:])
-            f(*args)
-
-        def python_fun(g, goals):
-            """
-            function call to Python, last arg unified with result
-            """
-            f = eval(g[0])
-            g = g[1:]
-            v = g[-1]
-            args = to_python(g[:-1])
-            r = f(*args)
-            r = from_python(r)
-            if not unify(v, r, trail=trail):
-                undo()
-            else:
-                yield from step(goals)
-
-            # unifies with last arg yield from a generator
-            # and first args, assumed ground, passed to it
-
-        def gen_call(g, goals):
-            gen = eval(g[0])
-            g = g[1:]
-            v = g[-1]
-            args = to_python(g[:-1])
-            for r in gen(*args):
-                r = from_python(r)
-                if unify(v, r, trail=trail):
-                    yield from step(goals)
-                undo()
-
-        def dispatch_call(op, g, goals):
-            """
-            dispatches several types of calls to Python
-            """
-            if op == 'not':
-                if neg(g):
-                    yield from step(goals)
-            elif op == '~':  # matches against database of facts
-                yield from db_call(g, goals)
-            elif op == '^':  # yield g as an answer directly
-                yield g
-                yield from step(goals)
-            elif op == '`':  # function call, last arg unified
-                yield from python_fun(g, goals)
-            elif op == "``":  # generator call, last arg unified
-                yield from gen_call(g, goals)
-            else:  # op == '#',  simple call, no return
-                python_call(g)
-                yield from step(goals)
-            undo()
-
-        def neg(g):
-            no_sol = object()
-            # g = extractTerm(g)
-            a = next(step((g, ())), no_sol)
-            if a is no_sol:
-                return True
-            return False
-
-        trail = []
         if goals == ():
-            yield extractTerm(goals0)
+            yield goal
         else:
-            g, goals = goals
-            op = g[0]
-            if op in {"not", "~", "`", "``", "^", "#"}:
-                g = extractTerm(g[1:])
-                yield from dispatch_call(op, g, goals)
-            else:
-                for newgoals in unfold(g, goals):
-                    yield from step(newgoals)
-                    undo()
+            trail = []
+            g, gs = goals
+            for newgoals in unfold(g, gs):
+                yield from step(newgoals)
+                undo(trail)
 
-    goals0 = activate(goals0, dict())
-    yield from step(goals0)
+    yield from step((goal))
 
 
 class MinLog:
@@ -204,9 +124,9 @@ class MinLog:
         """
          answer generator for given question
         """
-        goals = next(mparse(quest, ground=False, rule=False))
-        print('<<<<<<', goals)
-        yield from interp(self.css, goals)
+        goal_cls = next(mparse(quest, ground=False, rule=False))
+        goal = relocate(goal_cls, dict())
+        yield from interp(self.css, goal)
 
     def count(self, quest):
         """
@@ -250,20 +170,10 @@ def test_minlog():
     # n.query("goal8 Queens?")
 
     n = MinLog(file_name="../natprogs/perm.nat")
-    # print(n)
+    print(n)
     n.query("perm (1 (2 (3 ())))  X ?")
-
-    n = MinLog(file_name="../natprogs/py_call.nat")
-    # print(n)
-    n.query("goal X?")
-
-    n = MinLog(file_name="../natprogs/family.nat")
-    # print(n)
-    n.query("cousin of X C, male C?")
-    n.repl()
-
-    n.repl()
 
 
 if __name__ == "__main__":
+    # test_unify()
     test_minlog()

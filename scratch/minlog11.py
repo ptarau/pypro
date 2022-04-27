@@ -1,72 +1,11 @@
 from mparser import mparse
-from mscanner import VarNum
+
+from unify import unify, activate, extractTerm
+
+from db import Db
 
 
 # DERIVED FROM minlog3.py
-
-class Var:
-    def __init__(self):
-        self.val = None
-
-    def bind(self, val, trail):
-        self.val = val
-        trail.append(self)
-
-    def unbind(self):
-        self.val = None
-
-    def __repr__(self):
-        v = deref(self)
-        if isinstance(v, Var) and v.val is None:
-            return "_" + str(id(v))
-        else:
-            return repr(v)
-
-
-def deref(v):
-    while isinstance(v, Var):
-        if v.val is None:
-            return v
-        v = v.val
-    return v
-
-
-def unify(x, y, trail):
-    ustack = []
-    ustack.append(y)
-    ustack.append(x)
-    while ustack:
-        x1 = deref(ustack.pop())
-        x2 = deref(ustack.pop())
-        if x1 == x2: continue
-        if isinstance(x1, Var):
-            x1.bind(x2, trail)
-        elif isinstance(x2, Var):
-            x2.bind(x1, trail)
-        elif not isinstance(x1, tuple):
-            return False
-        else:  # assumed x1 is a tuple
-            arity = len(x1)
-            if len(x2) != arity:
-                return False
-            for i in range(arity - 1, -1, -1):
-                ustack.append(x2[i])
-                ustack.append(x1[i])
-    return True
-
-
-def activate(t, d):
-    if isinstance(t, VarNum):
-        v = d.get(t.val, None)
-        if v is None:
-            v = Var()
-            d[t.val] = v
-        return v
-    elif not isinstance(t, tuple):
-        return t
-    else:
-        return tuple(activate(x, d) for x in t)
-
 
 def to_python(x):
     return x
@@ -76,16 +15,7 @@ def from_python(x):
     return x
 
 
-def extractTerm(t):
-    if isinstance(t, Var):
-        return deref(t)
-    elif not isinstance(t, tuple):
-        return t
-    else:
-        return tuple(map(extractTerm, t))
-
-
-def interp(css, goals0):
+def interp(css, goals0, db=None):
     def step(goals):
 
         def undo():
@@ -106,6 +36,16 @@ def interp(css, goals0):
                         b = activate(b, d)
                         bsgs = (b, bsgs)
                     yield bsgs  # SUCCESS
+
+        # yields facts matching g in Db
+        def db_call(g, goals):
+            g = extractTerm(g)
+            for ok in db.unify_with_fact(g, trail):
+                if not ok:  # FAILURE
+                    undo()
+                    continue
+                yield from step(goals)  # SUCCESS
+                undo()
 
         def python_call(g):
             """
@@ -192,20 +132,32 @@ def interp(css, goals0):
 
 
 class MinLog:
-    def __init__(self, text=None, file_name=None):
+    def __init__(self, text=None, file_name=None, db_name=None):
         if file_name:
             with open(file_name, 'r') as f:
                 self.text = f.read()
         else:
             self.text = text
         self.css = tuple(mparse(self.text, ground=False, rule=True))
+        if db_name:
+            self.db_init()
+            self.db.load(db_name)
+        else:
+            self.db = None
+
+    def db_init(self):
+        """
+        overridable database initializer
+        sets the type of the database (default or neuro-symbolic)
+        """
+        self.db = Db()
 
     def solve(self, quest):
         """
          answer generator for given question
         """
         goals = next(mparse(quest, ground=False, rule=False))
-        print('<<<<<<', goals)
+
         yield from interp(self.css, goals)
 
     def count(self, quest):
@@ -230,7 +182,7 @@ class MinLog:
         read-eval-print-loop
         """
         print("Type ENTER to quit.")
-        while (True):
+        while True:
             q = input('?- ')
             if not q: return
             self.query(q)

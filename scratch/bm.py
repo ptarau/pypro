@@ -1,6 +1,6 @@
 import timeit
 
-from minlog5 import *
+from minlog import *
 
 
 def time_of(f, x, times=1):
@@ -29,8 +29,7 @@ my_text = """
       `llen Ys L. 
     """
 
-
-def bm():
+def bm1():
     n = MinLog(text=my_text)
     n.query("goal 10 L?")
     time_of(n.count, "goal 16 L?", times=256)
@@ -39,6 +38,8 @@ def bm():
     time_of(n.count, "goal 128 L?", times=4)
     # time_of(n.count, "goal 250 L?", times=1)
     print('')
+
+def bm():
     n = MinLog(file_name="../natprogs/queens.nat")
     time_of(n.count, "goal8 Queens?", times=9)
     time_of(n.count, "goal9 Queens?")

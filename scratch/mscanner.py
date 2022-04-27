@@ -4,6 +4,7 @@ import re
 # wrapper around int to be used in data fields
 # as actual int works as the type of variables
 # for simplicity and efficiency
+"""
 class VarNum:
     def __init__(self, val):
         self.val = int(val)
@@ -17,7 +18,11 @@ class VarNum:
 
     def __repr__(self):
         return "VarNum(" + str(self.val) + ")"
+"""
 
+class VarNum(int):
+    def __repr__(self):
+        return "VarNum(" + str(int(self)) + ")"
 
 def qtrim(s):
     return s[1:-1]
