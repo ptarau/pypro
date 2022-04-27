@@ -11,5 +11,3 @@ two (s (s 0)).
 three SX : two X, succ X SX.
 
 goal Six : three A, two B, mul A B Six.
-
-

@@ -116,6 +116,7 @@ def db_test():
     print('DB FACTS')
     print(nd.db)
     nd.query("tc Who is_a animal ?")
+    nd.repl()
 
 
 def ndb_test():
@@ -273,8 +274,8 @@ if __name__ == "__main__":
     ndb_chem()  # tests query about chemical elements
     """
     pass
-    #ndb_test()
-    t7()
+    db_test()
+    #t7()
     ##t8()
     #go()
     #py_test()
