@@ -1,4 +1,6 @@
-## A lightweight Prolog-like interpreter with a natural-language style syntax and neuro-symbolic tuple database interface
+# NEWER VERSIONS AND NEW DEVELOPMENTS HAVE BEEN MOVED TO: https://github.com/ptarau/minlog from where ```pip3 install natlog``` fetches them
+
+##A lightweight Prolog-like interpreter with a natural-language style syntax and neuro-symbolic tuple database interface
 
 We closely follow Einstein's *"Everything should be made as simple as possible, but no simpler."*
 
